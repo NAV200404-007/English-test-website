@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>English Skills Test</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="intro">
+        <div>
+          <p class="eyebrow">English Assessment</p>
+          <h1>English Skills Test</h1>
+          <p class="subtitle">Answer MCQs, write a short essay, and read a paragraph aloud. You have 20 minutes to complete the test.</p>
+        </div>
+        <div class="test-stats">
+          <div class="score-chip timer-chip">
+            <span id="testTimer">20:00</span>
+            <small>Time left</small>
+          </div>
+          <div class="score-chip">
+            <span>30</span>
+            <small>Total marks</small>
+          </div>
+        </div>
+      </section>
+
+      <form id="testForm" class="test-form">
+        <section class="panel student-panel">
+          <label for="studentName">Student name</label>
+          <input id="studentName" name="studentName" type="text" placeholder="Enter student name" required />
+
+          <label for="studentAge">Student age</label>
+          <input id="studentAge" name="studentAge" type="number" placeholder="Enter age" required />
+
+          <label>Gender</label>
+          <div class="gender-container" role="group" aria-label="Gender">
+            <button type="button" class="gender-box" data-gender="Male">Male</button>
+            <button type="button" class="gender-box" data-gender="Female">Female</button>
+          </div>
+
+          <input type="hidden" id="genderInput" name="gender" />
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <span>Section A</span>
+            <h2>Multiple Choice Questions</h2>
+          </div>
+          <div id="mcqContainer" class="question-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <span>Section B</span>
+            <h2>Writing</h2>
+          </div>
+          <p id="writingPrompt" class="prompt"></p>
+          <textarea id="writingAnswer" rows="9" placeholder="Write your essay here..." required></textarea>
+          <div class="helper-row">
+            <span id="wordCount">0 words</span>
+            <span>10 marks</span>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <span>Section C</span>
+            <h2>Speaking: Read Aloud</h2>
+          </div>
+          <p id="speakingInstruction" class="prompt"></p>
+          <article id="speakingPassage" class="passage"></article>
+          <div class="recorder">
+            <button type="button" id="recordButton">Record Voice</button>
+            <button type="button" id="stopButton" class="secondary" disabled>Stop</button>
+            <span id="recordingStatus">Not recorded yet</span>
+          </div>
+          <label for="speakingTranscript" class="reading-question">Recognized speech</label>
+          <textarea id="speakingTranscript" rows="5" placeholder="Your speech transcript will appear here after recording..." readonly required></textarea>
+          <div class="helper-row">
+            <span id="speakingTimer">0 seconds</span>
+            <span>10 marks</span>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button type="submit" id="submitButton">Submit Test</button>
+          <button type="button" id="resetButton" class="secondary">Reset</button>
+        </div>
+      </form>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

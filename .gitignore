@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+
+# Local environment and data
+.env
+backend/.env
+data/
+backend/data/
+
+# Logs
+*.log
+server-out.log
+server-err.log
+backend/server-out.log
+backend/server-err.log
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
