@@ -1,14 +1,107 @@
 const express = require("express");
 const cors = require("cors");
+const crypto = require("crypto");
+const fs = require("fs/promises");
 const path = require("path");
+const { MongoClient } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_DB = process.env.MONGODB_DB || "english_ai_test";
+const LOCAL_DATA_FILE = path.join(__dirname, "data", "submissions.json");
+let mongoClient;
+let databaseReady = false;
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static(path.join(__dirname, "../frontend")));
+
+async function getSubmissionsCollection() {
+  if (!MONGODB_URI) return null;
+
+  if (!mongoClient) {
+    mongoClient = new MongoClient(MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
+    await mongoClient.connect();
+  }
+
+  const collection = mongoClient.db(MONGODB_DB).collection("submissions");
+
+  if (!databaseReady) {
+    await collection.createIndex({ createdAt: -1 });
+    await collection.createIndex({ "student.name": 1 });
+    await collection.createIndex({ "result.level": 1 });
+    await collection.updateMany(
+      { student: { $exists: false } },
+      [
+        {
+          $set: {
+            schemaVersion: 2,
+            student: {
+              name: { $ifNull: ["$studentName", "$result.studentName"] },
+              age: { $ifNull: ["$result.studentAge", null] },
+              gender: { $ifNull: ["$result.gender", ""] }
+            }
+          }
+        }
+      ]
+    );
+    databaseReady = true;
+  }
+
+  return collection;
+}
+
+async function readLocalSubmissions() {
+  try {
+    const content = await fs.readFile(LOCAL_DATA_FILE, "utf8");
+    return JSON.parse(content);
+  } catch (error) {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+async function saveSubmission(submission) {
+  const record = {
+    ...submission,
+    createdAt: new Date().toISOString()
+  };
+
+  const collection = await getSubmissionsCollection();
+
+  if (collection) {
+    const result = await collection.insertOne(record);
+    return { ...record, id: result.insertedId.toString(), storage: "mongodb" };
+  }
+
+  await fs.mkdir(path.dirname(LOCAL_DATA_FILE), { recursive: true });
+  const submissions = await readLocalSubmissions();
+  const localRecord = {
+    ...record,
+    id: crypto.randomUUID(),
+    storage: "local-json"
+  };
+  submissions.push(localRecord);
+  await fs.writeFile(LOCAL_DATA_FILE, JSON.stringify(submissions, null, 2));
+  return localRecord;
+}
+
+async function listSubmissions() {
+  const collection = await getSubmissionsCollection();
+
+  if (collection) {
+    const submissions = await collection.find({}).sort({ createdAt: -1 }).limit(100).toArray();
+    return submissions.map((submission) => ({
+      ...submission,
+      id: submission._id?.toString()
+    }));
+  }
+
+  const submissions = await readLocalSubmissions();
+  return submissions.reverse().slice(0, 100);
+}
 
 const questions = {
   mcq: [
@@ -231,12 +324,42 @@ function getStudentLevel(percentage) {
   return "Basic";
 }
 
+function cleanStudentProfile({ studentName = "", studentAge = "", gender = "" }) {
+  const age = Number(studentAge);
+  const normalizedGender = String(gender || "").trim();
+
+  return {
+    name: String(studentName || "Student").trim() || "Student",
+    age: Number.isInteger(age) && age > 0 && age <= 120 ? age : null,
+    gender: ["Male", "Female"].includes(normalizedGender) ? normalizedGender : ""
+  };
+}
+
 app.get("/api/test", (req, res) => {
   res.json(questions);
 });
 
-app.post("/api/submit", (req, res) => {
-  const { mcqAnswers = {}, writingAnswer = "", speakingTranscript = "", speakingDuration = 0, studentName = "" } = req.body;
+app.get("/api/submissions", async (req, res) => {
+  try {
+    const submissions = await listSubmissions();
+    res.json(submissions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not retrieve submissions." });
+  }
+});
+
+app.post("/api/submit", async (req, res) => {
+  const {
+    mcqAnswers = {},
+    writingAnswer = "",
+    speakingTranscript = "",
+    speakingDuration = 0,
+    studentName = "",
+    studentAge = "",
+    gender = ""
+  } = req.body;
+  const student = cleanStudentProfile({ studentName, studentAge, gender });
 
   let mcqScore = 0;
   const mcqResults = questions.mcq.map((question) => {
@@ -260,8 +383,10 @@ app.post("/api/submit", (req, res) => {
   const percentage = Math.round((total / maxTotal) * 100);
   const level = getStudentLevel(percentage);
 
-  res.json({
-    studentName: String(studentName || "Student").trim(),
+  const response = {
+    studentName: student.name,
+    studentAge: student.age,
+    gender: student.gender,
     total,
     maxTotal,
     percentage,
@@ -273,7 +398,31 @@ app.post("/api/submit", (req, res) => {
       writing,
       speaking
     }
-  });
+  };
+
+  try {
+    const saved = await saveSubmission({
+      schemaVersion: 2,
+      student,
+      studentName: response.studentName,
+      answers: {
+        mcq: mcqAnswers,
+        writing: writingAnswer,
+        speakingTranscript,
+        speakingDuration: Number(speakingDuration)
+      },
+      result: response
+    });
+
+    res.json({
+      ...response,
+      submissionId: saved.id,
+      storage: saved.storage
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not save submission." });
+  }
 });
 
 app.listen(PORT, () => {
