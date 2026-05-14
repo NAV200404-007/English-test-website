@@ -20,7 +20,7 @@
             <small>Time left</small>
           </div>
           <div class="score-chip">
-            <span>30</span>
+            <span id="totalMarks">--</span>
             <small>Total marks</small>
           </div>
         </div>
@@ -36,8 +36,8 @@
 
           <label>Gender</label>
           <div class="gender-container" role="group" aria-label="Gender">
-            <button type="button" class="gender-box" data-gender="Male">Male</button>
-            <button type="button" class="gender-box" data-gender="Female">Female</button>
+            <button type="button" class="gender-box" data-gender="Male" aria-pressed="false">Male</button>
+            <button type="button" class="gender-box" data-gender="Female" aria-pressed="false">Female</button>
           </div>
 
           <input type="hidden" id="genderInput" name="gender" />

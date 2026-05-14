@@ -90,4 +90,4 @@ D:\english-ai-test\backend\data\submissions.json
 - Intermediate: 50% to 79%
 - Basic: below 50%
 
-The app does not require an external AI API key. Voice recognition uses the browser microphone feature, so use Chrome or Edge for the recording section. You can later connect it to OpenAI or another AI service for more advanced pronunciation assessment.
+The app does not require an external AI API key. Voice recognition uses the browser microphone feature, so use Chrome or Edge for the recording section.
