@@ -228,8 +228,13 @@ function collectVoiceSample() {
   const volume = Math.sqrt(total / data.length);
   volumeSamples.push(volume);
 
-  if (volume > 0.025) {
+  if (volume > 0.008) {
     voiceSamples += 1;
+  }
+
+  if (isRecording && volume > 0.015) {
+    recordingStatus.textContent =
+      "Recording... voice detected";
   }
 }
 
@@ -280,6 +285,10 @@ async function startRecording() {
     audioContext =
       new (window.AudioContext ||
         window.webkitAudioContext)();
+
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
 
     const source =
       audioContext.createMediaStreamSource(
@@ -332,10 +341,17 @@ function stopRecording() {
 
   updateTimer();
 
+  const metrics = getVoiceMetrics();
+  const detectedVoice =
+    metrics.voiceSeconds >= 1 ||
+    metrics.peakVolume > 0.015;
+
   recordingStatus.textContent =
     speakingTranscript.value.trim()
       ? "Recording complete"
-      : "No speech detected";
+      : detectedVoice
+        ? "Voice detected. Transcript may be limited."
+        : "No speech detected";
 
   if (recognition) {
     recognition.stop();

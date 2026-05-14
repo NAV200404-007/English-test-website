@@ -525,9 +525,9 @@ function scoreSpeaking(
     Number(voiceMetrics.silenceRatio) || 1;
   const hasVoiceActivity =
     cleanDuration >= 5 &&
-    voiceSeconds >= 3 &&
-    averageVolume > 0.01 &&
-    peakVolume > 0.03;
+    voiceSeconds >= 1.5 &&
+    averageVolume > 0.004 &&
+    peakVolume > 0.012;
 
   if (
     !cleanTranscript ||
@@ -540,9 +540,9 @@ function scoreSpeaking(
       ];
 
       if (voiceSeconds >= 20) fallbackScore += 2;
-      else if (voiceSeconds >= 10) fallbackScore += 1;
+      else if (voiceSeconds >= 8) fallbackScore += 1;
 
-      if (silenceRatio <= 0.45) fallbackScore += 1;
+      if (silenceRatio <= 0.7) fallbackScore += 1;
       else {
         feedback.push(
           "There were long silent gaps. Try to read continuously."
