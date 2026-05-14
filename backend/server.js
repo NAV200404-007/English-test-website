@@ -11,6 +11,10 @@ require("dotenv").config();
 const app = express();
 
 const PORT = process.env.PORT || 3000;
+const ADMIN_USERNAME =
+  process.env.ADMIN_USERNAME || "teacher";
+const ADMIN_PASSWORD =
+  process.env.ADMIN_PASSWORD || "change-this-password";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -26,7 +30,9 @@ const LOCAL_DATA_FILE = path.join(
 let mongoClient;
 
 let databaseReady = false;
-const UPLOAD_DIR = path.join(__dirname, "uploads");
+const UPLOAD_DIR =
+  process.env.UPLOAD_DIR ||
+  path.join(__dirname, "uploads");
 const upload = multer({
   storage: multer.diskStorage({
     destination(req, file, cb) {
@@ -47,6 +53,39 @@ app.use(cors());
 
 app.use(express.json({ limit: "1mb" }));
 
+function requireAdmin(req, res, next) {
+  const header = req.headers.authorization || "";
+  const [scheme, encoded] = header.split(" ");
+
+  if (scheme === "Basic" && encoded) {
+    const [username, password] = Buffer.from(
+      encoded,
+      "base64"
+    )
+      .toString("utf8")
+      .split(":");
+
+    if (
+      username === ADMIN_USERNAME &&
+      password === ADMIN_PASSWORD
+    ) {
+      return next();
+    }
+  }
+
+  res.set(
+    "WWW-Authenticate",
+    'Basic realm="Teacher Access"'
+  );
+  return res.status(401).send("Teacher access required.");
+}
+
+app.get("/admin.html", requireAdmin, (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../frontend/admin.html")
+  );
+});
+
 app.use(
   express.static(
     path.join(__dirname, "../frontend")
@@ -55,6 +94,7 @@ app.use(
 
 app.use(
   "/uploads",
+  requireAdmin,
   express.static(UPLOAD_DIR)
 );
 
@@ -778,6 +818,7 @@ app.get("/api/test", (req, res) => {
 
 app.get(
   "/api/submissions",
+  requireAdmin,
   async (req, res) => {
     try {
       const submissions =
