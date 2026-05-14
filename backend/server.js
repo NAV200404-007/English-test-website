@@ -3,6 +3,7 @@ const cors = require("cors");
 const crypto = require("crypto");
 const fs = require("fs/promises");
 const path = require("path");
+const multer = require("multer");
 const { MongoClient } = require("mongodb");
 
 require("dotenv").config();
@@ -25,6 +26,22 @@ const LOCAL_DATA_FILE = path.join(
 let mongoClient;
 
 let databaseReady = false;
+const UPLOAD_DIR = path.join(__dirname, "uploads");
+const upload = multer({
+  storage: multer.diskStorage({
+    destination(req, file, cb) {
+      cb(null, UPLOAD_DIR);
+    },
+    filename(req, file, cb) {
+      const extension =
+        path.extname(file.originalname) || ".webm";
+      cb(null, `${Date.now()}-${crypto.randomUUID()}${extension}`);
+    }
+  }),
+  limits: {
+    fileSize: 15 * 1024 * 1024
+  }
+});
 
 app.use(cors());
 
@@ -34,6 +51,11 @@ app.use(
   express.static(
     path.join(__dirname, "../frontend")
   )
+);
+
+app.use(
+  "/uploads",
+  express.static(UPLOAD_DIR)
 );
 
 async function getSubmissionsCollection() {
@@ -775,6 +797,28 @@ app.get(
 );
 
 app.post(
+  "/api/audio",
+  async (req, res, next) => {
+    await fs.mkdir(UPLOAD_DIR, { recursive: true });
+    next();
+  },
+  upload.single("audio"),
+  (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({
+        error: "No audio file uploaded."
+      });
+    }
+
+    res.json({
+      audioUrl: `/uploads/${req.file.filename}`,
+      audioFilename: req.file.filename,
+      audioSize: req.file.size
+    });
+  }
+);
+
+app.post(
   "/api/submit",
   async (req, res) => {
     const {
@@ -783,6 +827,7 @@ app.post(
       speakingTranscript = "",
       speakingDuration = 0,
       speakingMetrics = {},
+      speakingAudio = null,
       studentName = "",
       studentAge = "",
       gender = ""
@@ -912,9 +957,12 @@ app.post(
                 speakingDuration
               ),
 
-            speakingMetrics
+            speakingMetrics,
+
+            speakingAudio
           },
 
+          speakingAudio,
           result: response
         });
 

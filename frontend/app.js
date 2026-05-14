@@ -35,7 +35,9 @@ let recognition = null;
 let micStream = null;
 let mediaRecorder = null;
 let audioChunks = [];
+let recordedAudioBlob = null;
 let recordedAudioBytes = 0;
+let recordingStopPromise = Promise.resolve();
 let audioContext = null;
 let analyser = null;
 let volumeSamples = [];
@@ -214,7 +216,9 @@ function resetVoiceMetrics() {
   volumeSamples = [];
   voiceSamples = 0;
   audioChunks = [];
+  recordedAudioBlob = null;
   recordedAudioBytes = 0;
+  recordingStopPromise = Promise.resolve();
 }
 
 function collectVoiceSample() {
@@ -307,21 +311,32 @@ async function startRecording() {
 
     if (window.MediaRecorder) {
       mediaRecorder = new MediaRecorder(micStream);
+      recordingStopPromise = new Promise((resolve) => {
+        mediaRecorder.addEventListener(
+          "stop",
+          () => {
+            recordedAudioBytes = audioChunks.reduce(
+              (total, chunk) => total + chunk.size,
+              0
+            );
+            recordedAudioBlob = new Blob(audioChunks, {
+              type:
+                mediaRecorder.mimeType ||
+                "audio/webm"
+            });
+
+            updateRecordingStatus();
+            resolve();
+          },
+          { once: true }
+        );
+      });
 
       mediaRecorder.addEventListener("dataavailable", (event) => {
         if (event.data && event.data.size > 0) {
           audioChunks.push(event.data);
           recordedAudioBytes += event.data.size;
         }
-      });
-
-      mediaRecorder.addEventListener("stop", () => {
-        recordedAudioBytes = audioChunks.reduce(
-          (total, chunk) => total + chunk.size,
-          0
-        );
-
-        updateRecordingStatus();
       });
     } else {
       mediaRecorder = null;
@@ -378,7 +393,7 @@ function updateRecordingStatus() {
         : "No speech detected";
 }
 
-function stopRecording() {
+async function stopRecording() {
   isRecording = false;
 
   recordButton.disabled = false;
@@ -399,6 +414,7 @@ function stopRecording() {
     mediaRecorder.state !== "inactive"
   ) {
     mediaRecorder.stop();
+    await recordingStopPromise;
   }
 
   if (micStream) {
@@ -471,13 +487,37 @@ stopButton.addEventListener(
   stopRecording
 );
 
+async function uploadSpeakingAudio() {
+  if (!recordedAudioBlob || recordedAudioBlob.size < 500) {
+    return null;
+  }
+
+  const formData = new FormData();
+  formData.append(
+    "audio",
+    recordedAudioBlob,
+    "speaking-recording.webm"
+  );
+
+  const response = await fetch(`${API_BASE}/audio`, {
+    method: "POST",
+    body: formData
+  });
+
+  if (!response.ok) {
+    throw new Error("Could not upload speaking audio.");
+  }
+
+  return response.json();
+}
+
 async function submitTest(fromTimer = false) {
   if (isSubmitting) return;
 
   isSubmitting = true;
 
   if (isRecording) {
-    stopRecording();
+    await stopRecording();
   }
 
   if (!genderInput.value) {
@@ -496,6 +536,9 @@ async function submitTest(fromTimer = false) {
       : "Checking...";
 
   try {
+    const speakingAudio =
+      await uploadSpeakingAudio();
+
     const response = await fetch(
       `${API_BASE}/submit`,
       {
@@ -520,7 +563,9 @@ async function submitTest(fromTimer = false) {
           speakingDuration,
 
           speakingMetrics:
-            getVoiceMetrics()
+            getVoiceMetrics(),
+
+          speakingAudio
         })
       }
     );

@@ -20,6 +20,13 @@ function renderSubmissions(submissions) {
       const result = submission.result || submission;
       const student = submission.student || {};
       const sections = result.sections;
+      const audioUrl =
+        submission.speakingAudio?.audioUrl ||
+        submission.answers?.speakingAudio?.audioUrl ||
+        "";
+      const audioCell = audioUrl
+        ? `<audio controls preload="none" src="${escapeHtml(audioUrl)}"></audio>`
+        : "No audio";
       return `
         <tr>
           <td>${escapeHtml(submission.createdAt || "")}</td>
@@ -29,6 +36,7 @@ function renderSubmissions(submissions) {
           <td>${escapeHtml(sections.mcq.score)}/${escapeHtml(sections.mcq.max)}</td>
           <td>${escapeHtml(sections.writing.score)}/${escapeHtml(sections.writing.max)}</td>
           <td>${escapeHtml(sections.speaking.score)}/${escapeHtml(sections.speaking.max)}</td>
+          <td>${audioCell}</td>
           <td>${escapeHtml(result.total)}/${escapeHtml(result.maxTotal)}</td>
           <td>${escapeHtml(result.level)}</td>
         </tr>
@@ -47,6 +55,7 @@ function renderSubmissions(submissions) {
           <th>MCQ</th>
           <th>Writing</th>
           <th>Speaking</th>
+          <th>Audio</th>
           <th>Total</th>
           <th>Level</th>
         </tr>

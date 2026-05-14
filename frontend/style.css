@@ -412,6 +412,11 @@ table {
   border-collapse: collapse;
 }
 
+td audio {
+  width: 220px;
+  max-width: 100%;
+}
+
 th,
 td {
   border-bottom: 1px solid var(--line);
