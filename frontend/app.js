@@ -33,6 +33,9 @@ let testData = null;
 
 let recognition = null;
 let micStream = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let recordedAudioBytes = 0;
 let audioContext = null;
 let analyser = null;
 let volumeSamples = [];
@@ -210,6 +213,8 @@ function setupSpeechRecognition() {
 function resetVoiceMetrics() {
   volumeSamples = [];
   voiceSamples = 0;
+  audioChunks = [];
+  recordedAudioBytes = 0;
 }
 
 function collectVoiceSample() {
@@ -257,7 +262,8 @@ function getVoiceMetrics() {
     peakVolume,
     silenceRatio: sampleCount
       ? 1 - voiceSamples / sampleCount
-      : 1
+      : 1,
+    audioBytes: recordedAudioBytes
   };
 }
 
@@ -298,6 +304,28 @@ async function startRecording() {
     analyser = audioContext.createAnalyser();
     analyser.fftSize = 1024;
     source.connect(analyser);
+
+    if (window.MediaRecorder) {
+      mediaRecorder = new MediaRecorder(micStream);
+
+      mediaRecorder.addEventListener("dataavailable", (event) => {
+        if (event.data && event.data.size > 0) {
+          audioChunks.push(event.data);
+          recordedAudioBytes += event.data.size;
+        }
+      });
+
+      mediaRecorder.addEventListener("stop", () => {
+        recordedAudioBytes = audioChunks.reduce(
+          (total, chunk) => total + chunk.size,
+          0
+        );
+
+        updateRecordingStatus();
+      });
+    } else {
+      mediaRecorder = null;
+    }
   } catch (error) {
     console.error(error);
 
@@ -329,6 +357,25 @@ async function startRecording() {
   if (recognition) {
     recognition.start();
   }
+
+  if (mediaRecorder) {
+    mediaRecorder.start(500);
+  }
+}
+
+function updateRecordingStatus() {
+  const metrics = getVoiceMetrics();
+  const detectedRecording =
+    metrics.audioBytes > 1500 ||
+    metrics.voiceSeconds >= 1 ||
+    metrics.peakVolume > 0.015;
+
+  recordingStatus.textContent =
+    speakingTranscript.value.trim()
+      ? "Recording complete"
+      : detectedRecording
+        ? "Audio recorded. Transcript may be limited."
+        : "No speech detected";
 }
 
 function stopRecording() {
@@ -341,20 +388,17 @@ function stopRecording() {
 
   updateTimer();
 
-  const metrics = getVoiceMetrics();
-  const detectedVoice =
-    metrics.voiceSeconds >= 1 ||
-    metrics.peakVolume > 0.015;
-
-  recordingStatus.textContent =
-    speakingTranscript.value.trim()
-      ? "Recording complete"
-      : detectedVoice
-        ? "Voice detected. Transcript may be limited."
-        : "No speech detected";
+  updateRecordingStatus();
 
   if (recognition) {
     recognition.stop();
+  }
+
+  if (
+    mediaRecorder &&
+    mediaRecorder.state !== "inactive"
+  ) {
+    mediaRecorder.stop();
   }
 
   if (micStream) {
@@ -368,6 +412,7 @@ function stopRecording() {
   }
 
   micStream = null;
+  mediaRecorder = null;
   audioContext = null;
   analyser = null;
 }

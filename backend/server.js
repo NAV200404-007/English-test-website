@@ -523,11 +523,18 @@ function scoreSpeaking(
     Number(voiceMetrics.peakVolume) || 0;
   const silenceRatio =
     Number(voiceMetrics.silenceRatio) || 1;
+  const audioBytes =
+    Number(voiceMetrics.audioBytes) || 0;
   const hasVoiceActivity =
     cleanDuration >= 5 &&
-    voiceSeconds >= 1.5 &&
-    averageVolume > 0.004 &&
-    peakVolume > 0.012;
+    (
+      audioBytes >= 1500 ||
+      (
+        voiceSeconds >= 1.5 &&
+        averageVolume > 0.004 &&
+        peakVolume > 0.012
+      )
+    );
 
   if (
     !cleanTranscript ||
@@ -539,8 +546,8 @@ function scoreSpeaking(
         "Speech was detected, but the browser could not create a transcript. Use Chrome or Edge and speak clearly near the microphone for a more accurate pronunciation score."
       ];
 
-      if (voiceSeconds >= 20) fallbackScore += 2;
-      else if (voiceSeconds >= 8) fallbackScore += 1;
+      if (cleanDuration >= 45 || voiceSeconds >= 20) fallbackScore += 2;
+      else if (cleanDuration >= 20 || voiceSeconds >= 8) fallbackScore += 1;
 
       if (silenceRatio <= 0.7) fallbackScore += 1;
       else {
@@ -556,6 +563,7 @@ function scoreSpeaking(
         wordsSpoken: 0,
         wordsPerMinute: 0,
         accuracy: 0,
+        audioBytes,
         voiceSeconds: Math.round(voiceSeconds),
         averageVolume: Number(averageVolume.toFixed(3)),
         silenceRatio: Number(silenceRatio.toFixed(2)),
