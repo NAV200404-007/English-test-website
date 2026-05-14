@@ -32,6 +32,11 @@ const totalMarks = document.querySelector("#totalMarks");
 let testData = null;
 
 let recognition = null;
+let micStream = null;
+let audioContext = null;
+let analyser = null;
+let volumeSamples = [];
+let voiceSamples = 0;
 let isRecording = false;
 let recordingStartedAt = 0;
 let speakingDuration = 0;
@@ -159,12 +164,10 @@ function setupSpeechRecognition() {
 
   if (!SpeechRecognition) {
     recordingStatus.textContent =
-      "Voice recording works best in Chrome or Edge.";
-
-    recordButton.disabled = true;
+      "Transcript works best in Chrome or Edge. Mic activity will still be checked.";
 
     speakingTranscript.placeholder =
-      "Speech recognition is not supported in this browser. Use Chrome or Edge.";
+      "No speech transcript support in this browser. The app will score voice activity only.";
 
     return;
   }
@@ -204,6 +207,55 @@ function setupSpeechRecognition() {
   });
 }
 
+function resetVoiceMetrics() {
+  volumeSamples = [];
+  voiceSamples = 0;
+}
+
+function collectVoiceSample() {
+  if (!analyser) return;
+
+  const data = new Uint8Array(analyser.fftSize);
+  analyser.getByteTimeDomainData(data);
+
+  let total = 0;
+
+  data.forEach((value) => {
+    const centered = (value - 128) / 128;
+    total += centered * centered;
+  });
+
+  const volume = Math.sqrt(total / data.length);
+  volumeSamples.push(volume);
+
+  if (volume > 0.025) {
+    voiceSamples += 1;
+  }
+}
+
+function getVoiceMetrics() {
+  const sampleCount = volumeSamples.length;
+  const totalVolume = volumeSamples.reduce(
+    (total, value) => total + value,
+    0
+  );
+  const peakVolume = sampleCount
+    ? Math.max(...volumeSamples)
+    : 0;
+
+  return {
+    sampleCount,
+    voiceSeconds: voiceSamples * 0.5,
+    averageVolume: sampleCount
+      ? totalVolume / sampleCount
+      : 0,
+    peakVolume,
+    silenceRatio: sampleCount
+      ? 1 - voiceSamples / sampleCount
+      : 1
+  };
+}
+
 function updateTimer() {
   speakingDuration = Math.max(
     0,
@@ -214,13 +266,41 @@ function updateTimer() {
 
   speakingTimer.textContent =
     `${speakingDuration} seconds`;
+
+  collectVoiceSample();
 }
 
-function startRecording() {
-  if (!recognition) return;
+async function startRecording() {
+  try {
+    micStream =
+      await navigator.mediaDevices.getUserMedia({
+        audio: true
+      });
+
+    audioContext =
+      new (window.AudioContext ||
+        window.webkitAudioContext)();
+
+    const source =
+      audioContext.createMediaStreamSource(
+        micStream
+      );
+
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 1024;
+    source.connect(analyser);
+  } catch (error) {
+    console.error(error);
+
+    recordingStatus.textContent =
+      "Microphone access denied";
+
+    return;
+  }
 
   speakingTranscript.value = "";
   speakingDuration = 0;
+  resetVoiceMetrics();
   recordingStartedAt = Date.now();
   isRecording = true;
 
@@ -237,7 +317,9 @@ function startRecording() {
     500
   );
 
-  recognition.start();
+  if (recognition) {
+    recognition.start();
+  }
 }
 
 function stopRecording() {
@@ -258,6 +340,20 @@ function stopRecording() {
   if (recognition) {
     recognition.stop();
   }
+
+  if (micStream) {
+    micStream
+      .getTracks()
+      .forEach((track) => track.stop());
+  }
+
+  if (audioContext) {
+    audioContext.close();
+  }
+
+  micStream = null;
+  audioContext = null;
+  analyser = null;
 }
 
 writingAnswer.addEventListener("input", () => {
@@ -276,6 +372,7 @@ resetButton.addEventListener("click", () => {
   wordCount.textContent = "0 words";
 
   speakingDuration = 0;
+  resetVoiceMetrics();
 
   speakingTimer.textContent = "0 seconds";
 
@@ -359,7 +456,10 @@ async function submitTest(fromTimer = false) {
           speakingTranscript:
             speakingTranscript.value,
 
-          speakingDuration
+          speakingDuration,
+
+          speakingMetrics:
+            getVoiceMetrics()
         })
       }
     );

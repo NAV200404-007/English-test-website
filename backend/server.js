@@ -226,6 +226,106 @@ const questions = {
       ],
 
       answer: 1
+    },
+
+    {
+      id: "mcq3",
+      question: "Select the correct punctuation.",
+      options: [
+        "1. Although it was raining we played outside.",
+        "2. Although it was raining, we played outside.",
+        "3. Although, it was raining we played outside.",
+        "4. Although it was raining we, played outside."
+      ],
+      answer: 1
+    },
+
+    {
+      id: "mcq4",
+      question:
+        "Choose the correct form: 'By next year, I _____ English for five years.'",
+      options: [
+        "1. study",
+        "2. studied",
+        "3. will have studied",
+        "4. am studying"
+      ],
+      answer: 2
+    },
+
+    {
+      id: "mcq5",
+      question:
+        "Which sentence uses an adjective correctly?",
+      options: [
+        "1. The quick runner finished first.",
+        "2. The runner quick finished first.",
+        "3. The runner finished quick first.",
+        "4. The runner first quick finished."
+      ],
+      answer: 0
+    },
+
+    {
+      id: "mcq6",
+      question: "Which sentence is correct?",
+      options: [
+        "1. Neither of the boys are late.",
+        "2. Neither of the boys were late.",
+        "3. Neither of the boys is late.",
+        "4. Neither of the boys have been late."
+      ],
+      answer: 2
+    },
+
+    {
+      id: "mcq7",
+      question: "Which word is a noun?",
+      options: [
+        "1. Quickly",
+        "2. Beautiful",
+        "3. Happiness",
+        "4. Softly"
+      ],
+      answer: 2
+    },
+
+    {
+      id: "mcq8",
+      question:
+        "Fill in the blank: They ______ football yesterday.",
+      options: [
+        "1. play",
+        "2. played",
+        "3. playing",
+        "4. plays"
+      ],
+      answer: 1
+    },
+
+    {
+      id: "mcq9",
+      question: "Choose the correct punctuation.",
+      options: [
+        "1. Wow that is amazing!",
+        "2. Wow, that is amazing!",
+        "3. Wow that, is amazing!",
+        "4. Wow that is, amazing!"
+      ],
+      answer: 1
+    },
+
+    {
+      id: "mcq10",
+      question:
+        "Identify the adjective in the sentence: \"The tall boy won the race.\"",
+      options: [
+        "1. boy",
+        "2. won",
+        "3. tall",
+        "4. race"
+      ],
+      answer: 2
     }
   ],
 
@@ -239,7 +339,7 @@ const questions = {
 
   writing: {
     prompt:
-      "Write a short essay about why learning English is useful. Include at least two reasons and one example (minimum 50 words)."
+      "Write a short essay about why learning English is useful. Include at least two clear reasons, one specific example, and a conclusion (minimum 80 words)."
   }
 };
 
@@ -287,13 +387,12 @@ function scoreWriting(text) {
 
   const feedback = [];
 
-  if (words >= 80) score += 4;
-  else if (words >= 50) score += 3;
-  else if (words >= 30) score += 2;
-  else if (words >= 15) score += 1;
+  if (words >= 120) score += 2;
+  else if (words >= 90) score += 1.5;
+  else if (words >= 80) score += 1;
   else {
     feedback.push(
-      "Write more detail. Aim for at least 50 words."
+      "Write more detail. The essay must be at least 80 words."
     );
   }
 
@@ -305,7 +404,9 @@ function scoreWriting(text) {
     "also",
     "another",
     "important",
-    "useful"
+    "useful",
+    "helps",
+    "improves"
   ];
 
   const reasonHits =
@@ -314,11 +415,11 @@ function scoreWriting(text) {
       reasonWords
     );
 
-  if (reasonHits >= 3) score += 3;
-  else if (reasonHits >= 1) score += 2;
+  if (reasonHits >= 4) score += 2;
+  else if (reasonHits >= 2) score += 1;
   else {
     feedback.push(
-      "Include clear reasons for your opinion."
+      "Include at least two clear reasons for your opinion."
     );
   }
 
@@ -330,7 +431,10 @@ function scoreWriting(text) {
     "work",
     "travel",
     "communication",
-    "internet"
+    "internet",
+    "job",
+    "career",
+    "university"
   ];
 
   const exampleHits =
@@ -343,24 +447,53 @@ function scoreWriting(text) {
   else if (exampleHits === 1) score += 1;
   else {
     feedback.push(
-      "Add a real example to support your answer."
+      "Add one specific example, not only a general statement."
     );
   }
 
+  const hasConclusion =
+    /\b(in conclusion|to conclude|overall|therefore|finally)\b/.test(lower);
+  const paragraphCount =
+    answer.split(/\n\s*\n|\r\n\s*\r\n/).filter((part) => part.trim()).length;
+
   if (
-    sentences.length >= 4 &&
-    /^[A-Z]/.test(answer) &&
-    /[.!?]$/.test(answer)
+    sentences.length >= 5 &&
+    paragraphCount >= 2 &&
+    hasConclusion
   ) {
-    score += 1;
+    score += 2;
   } else {
     feedback.push(
-      "Use complete sentences with correct capitalization and punctuation."
+      "Use essay structure: at least two paragraphs, five sentences, and a clear conclusion."
+    );
+  }
+
+  const startsWithCapital = /^[A-Z]/.test(answer);
+  const endsWithPunctuation = /[.!?]$/.test(answer);
+  const sentenceStarts = sentences.filter((sentence) =>
+    /^[A-Z]/.test(sentence)
+  ).length;
+  const sentenceCapitalRatio =
+    sentences.length ? sentenceStarts / sentences.length : 0;
+  const averageSentenceLength =
+    sentences.length ? words / sentences.length : 0;
+
+  if (
+    startsWithCapital &&
+    endsWithPunctuation &&
+    sentenceCapitalRatio >= 0.8 &&
+    averageSentenceLength >= 8 &&
+    averageSentenceLength <= 28
+  ) {
+    score += 2;
+  } else {
+    feedback.push(
+      "Check grammar basics: capitalization, punctuation, and complete sentence length."
     );
   }
 
   return {
-    score: Math.min(score, 10),
+    score: Math.min(Math.round(score), 10),
     max: 10,
     words,
 
@@ -374,18 +507,62 @@ function scoreWriting(text) {
 
 function scoreSpeaking(
   transcript,
-  durationSeconds = 0
+  durationSeconds = 0,
+  voiceMetrics = {}
 ) {
   const cleanTranscript =
     String(transcript || "").trim();
 
   const cleanDuration =
     Number(durationSeconds) || 0;
+  const voiceSeconds =
+    Number(voiceMetrics.voiceSeconds) || 0;
+  const averageVolume =
+    Number(voiceMetrics.averageVolume) || 0;
+  const peakVolume =
+    Number(voiceMetrics.peakVolume) || 0;
+  const silenceRatio =
+    Number(voiceMetrics.silenceRatio) || 1;
+  const hasVoiceActivity =
+    cleanDuration >= 5 &&
+    voiceSeconds >= 3 &&
+    averageVolume > 0.01 &&
+    peakVolume > 0.03;
 
   if (
     !cleanTranscript ||
     cleanDuration < 3
   ) {
+    if (hasVoiceActivity) {
+      let fallbackScore = 3;
+      const feedback = [
+        "Speech was detected, but the browser could not create a transcript. Use Chrome or Edge and speak clearly near the microphone for a more accurate pronunciation score."
+      ];
+
+      if (voiceSeconds >= 20) fallbackScore += 2;
+      else if (voiceSeconds >= 10) fallbackScore += 1;
+
+      if (silenceRatio <= 0.45) fallbackScore += 1;
+      else {
+        feedback.push(
+          "There were long silent gaps. Try to read continuously."
+        );
+      }
+
+      return {
+        score: Math.min(fallbackScore, 6),
+        max: 10,
+        transcript: cleanTranscript,
+        wordsSpoken: 0,
+        wordsPerMinute: 0,
+        accuracy: 0,
+        voiceSeconds: Math.round(voiceSeconds),
+        averageVolume: Number(averageVolume.toFixed(3)),
+        silenceRatio: Number(silenceRatio.toFixed(2)),
+        feedback
+      };
+    }
+
     return {
       score: 0,
       max: 10,
@@ -511,6 +688,10 @@ function scoreSpeaking(
       accuracy * 100
     ),
 
+    voiceSeconds: Math.round(voiceSeconds),
+    averageVolume: Number(averageVolume.toFixed(3)),
+    silenceRatio: Number(silenceRatio.toFixed(2)),
+
     feedback: feedback.length
       ? feedback
       : [
@@ -593,6 +774,7 @@ app.post(
       writingAnswer = "",
       speakingTranscript = "",
       speakingDuration = 0,
+      speakingMetrics = {},
       studentName = "",
       studentAge = "",
       gender = ""
@@ -645,7 +827,8 @@ app.post(
     const speaking =
       scoreSpeaking(
         speakingTranscript,
-        Number(speakingDuration)
+        Number(speakingDuration),
+        speakingMetrics
       );
 
     const total =
@@ -719,7 +902,9 @@ app.post(
             speakingDuration:
               Number(
                 speakingDuration
-              )
+              ),
+
+            speakingMetrics
           },
 
           result: response
