@@ -29,6 +29,8 @@ const submitButton = document.querySelector("#submitButton");
 
 const testTimer = document.querySelector("#testTimer");
 const totalMarks = document.querySelector("#totalMarks");
+const TEST_DURATION_SECONDS = 20 * 60;
+const TIMER_DEADLINE_KEY = "englishTestTimerDeadline";
 
 let testData = null;
 
@@ -50,7 +52,7 @@ let speakingDuration = 0;
 let speakingTimerId = null;
 let testTimerId = null;
 
-let secondsLeft = 20 * 60;
+let secondsLeft = TEST_DURATION_SECONDS;
 
 let isSubmitting = false;
 
@@ -130,6 +132,17 @@ async function loadTest() {
 }
 
 function updateTestTimer() {
+  const savedDeadline = Number(
+    sessionStorage.getItem(TIMER_DEADLINE_KEY)
+  );
+
+  if (savedDeadline) {
+    secondsLeft = Math.max(
+      0,
+      Math.ceil((savedDeadline - Date.now()) / 1000)
+    );
+  }
+
   const minutes = String(
     Math.floor(secondsLeft / 60)
   ).padStart(2, "0");
@@ -147,11 +160,23 @@ function updateTestTimer() {
 }
 
 function startTestTimer() {
+  let deadline = Number(
+    sessionStorage.getItem(TIMER_DEADLINE_KEY)
+  );
+
+  if (!deadline || deadline <= Date.now()) {
+    deadline =
+      Date.now() + TEST_DURATION_SECONDS * 1000;
+
+    sessionStorage.setItem(
+      TIMER_DEADLINE_KEY,
+      String(deadline)
+    );
+  }
+
   updateTestTimer();
 
   testTimerId = window.setInterval(() => {
-    secondsLeft -= 1;
-
     updateTestTimer();
 
     if (secondsLeft <= 0) {
@@ -245,6 +270,12 @@ function collectVoiceSample() {
     recordingStatus.textContent =
       "Recording... voice detected";
   }
+}
+
+function cleanAgeInput() {
+  studentAge.value = studentAge.value
+    .replace(/[^\d]/g, "")
+    .replace(/^0+(\d)/, "$1");
 }
 
 function getVoiceMetrics() {
@@ -438,6 +469,14 @@ writingAnswer.addEventListener("input", () => {
     `${wordsIn(writingAnswer.value)} words`;
 });
 
+studentAge.addEventListener("keydown", (event) => {
+  if (["e", "E", "+", "-", "."].includes(event.key)) {
+    event.preventDefault();
+  }
+});
+
+studentAge.addEventListener("input", cleanAgeInput);
+
 resetButton.addEventListener("click", () => {
   form.reset();
 
@@ -458,7 +497,12 @@ resetButton.addEventListener("click", () => {
   recordingStatus.textContent =
     "Not recorded yet";
 
-  secondsLeft = 20 * 60;
+  secondsLeft = TEST_DURATION_SECONDS;
+
+  sessionStorage.setItem(
+    TIMER_DEADLINE_KEY,
+    String(Date.now() + TEST_DURATION_SECONDS * 1000)
+  );
 
   updateTestTimer();
 });
@@ -528,6 +572,20 @@ async function submitTest(fromTimer = false) {
     return;
   }
 
+  const age = Number(studentAge.value);
+
+  if (
+    !Number.isInteger(age) ||
+    age < 1 ||
+    age > 120
+  ) {
+    alert("Please enter a valid age between 1 and 120.");
+
+    isSubmitting = false;
+
+    return;
+  }
+
   submitButton.disabled = true;
 
   submitButton.textContent =
@@ -583,6 +641,8 @@ async function submitTest(fromTimer = false) {
       "englishTestResult",
       JSON.stringify(result)
     );
+
+    sessionStorage.removeItem(TIMER_DEADLINE_KEY);
 
     window.location.href = "result.html";
 
