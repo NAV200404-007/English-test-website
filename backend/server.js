@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 const ADMIN_USERNAME =
   process.env.ADMIN_USERNAME || "teacher";
 const ADMIN_PASSWORD =
-  process.env.ADMIN_PASSWORD || "change-this-password";
+  process.env.ADMIN_PASSWORD || "password";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
