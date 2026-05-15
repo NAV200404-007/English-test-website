@@ -267,18 +267,22 @@ async function listSubmissions() {
     .slice(0, 100);
 }
 
+const MCQ_MARKS_PER_QUESTION = 3;
+const WRITING_MAX_MARKS = 25;
+const SPEAKING_MAX_MARKS = 30;
+
 const questions = {
   mcq: [
     {
       id: "mcq1",
-      question:
-        "Choose the sentence with correct grammar.",
+      level: "Basic",
+      question: "Choose the correct sentence.",
 
       options: [
-        "1. She go to school every day.",
-        "2. She goes to school every day.",
-        "3. She going to school every day.",
-        "4. She gone to school every day."
+        "A) She go to school every day.",
+        "B) She goes to school every day.",
+        "C) She going to school every day.",
+        "D) She gone to school every day."
       ],
 
       answer: 1
@@ -286,116 +290,193 @@ const questions = {
 
     {
       id: "mcq2",
-
-      question:
-        "Which word is closest in meaning to 'brief'?",
+      level: "Basic",
+      question: "Which word is a noun?",
 
       options: [
-        "1. Long",
-        "2. Short",
-        "3. Difficult",
-        "4. Careless"
+        "A) Quickly",
+        "B) Beautiful",
+        "C) Teacher",
+        "D) Run"
       ],
 
-      answer: 1
+      answer: 2
     },
 
     {
       id: "mcq3",
-      question: "Select the correct punctuation.",
+      level: "Basic",
+      question: "Fill in the blank: I ___ a football yesterday.",
       options: [
-        "1. Although it was raining we played outside.",
-        "2. Although it was raining, we played outside.",
-        "3. Although, it was raining we played outside.",
-        "4. Although it was raining we, played outside."
+        "A) buy",
+        "B) bought",
+        "C) buying",
+        "D) buys"
       ],
       answer: 1
     },
 
     {
       id: "mcq4",
-      question:
-        "Choose the correct form: 'By next year, I _____ English for five years.'",
+      level: "Basic",
+      question: "Choose the correct spelling.",
       options: [
-        "1. study",
-        "2. studied",
-        "3. will have studied",
-        "4. am studying"
+        "A) Frend",
+        "B) Frind",
+        "C) Friend",
+        "D) Freind"
       ],
       answer: 2
     },
 
     {
       id: "mcq5",
-      question:
-        "Which sentence uses an adjective correctly?",
+      level: "Basic",
+      question: "What is the opposite of \"hot\"?",
       options: [
-        "1. The quick runner finished first.",
-        "2. The runner quick finished first.",
-        "3. The runner finished quick first.",
-        "4. The runner first quick finished."
+        "A) Warm",
+        "B) Cold",
+        "C) Boiling",
+        "D) Dry"
       ],
-      answer: 0
+      answer: 1
     },
 
     {
       id: "mcq6",
+      level: "Intermediate",
       question: "Which sentence is correct?",
       options: [
-        "1. Neither of the boys are late.",
-        "2. Neither of the boys were late.",
-        "3. Neither of the boys is late.",
-        "4. Neither of the boys have been late."
+        "A) Neither of the boys were late.",
+        "B) Neither of the boys was late.",
+        "C) Neither of the boys are late.",
+        "D) Neither of the boys have been late."
       ],
-      answer: 2
+      answer: 1
     },
 
     {
       id: "mcq7",
-      question: "Which word is a noun?",
+      level: "Intermediate",
+      question:
+        "Fill in the blank: If I ___ more time, I would learn Spanish.",
       options: [
-        "1. Quickly",
-        "2. Beautiful",
-        "3. Happiness",
-        "4. Softly"
+        "A) have",
+        "B) had",
+        "C) has",
+        "D) having"
+      ],
+      answer: 1
+    },
+
+    {
+      id: "mcq8",
+      level: "Intermediate",
+      question:
+        "Identify the adjective in the sentence: \"The tall building overlooks the city.\"",
+      options: [
+        "A) Building",
+        "B) Overlooks",
+        "C) Tall",
+        "D) City"
       ],
       answer: 2
     },
 
     {
-      id: "mcq8",
-      question:
-        "Fill in the blank: They ______ football yesterday.",
-      options: [
-        "1. play",
-        "2. played",
-        "3. playing",
-        "4. plays"
-      ],
-      answer: 1
-    },
-
-    {
       id: "mcq9",
-      question: "Choose the correct punctuation.",
+      level: "Intermediate",
+      question:
+        "Choose the sentence with correct punctuation.",
       options: [
-        "1. Wow that is amazing!",
-        "2. Wow, that is amazing!",
-        "3. Wow that, is amazing!",
-        "4. Wow that is, amazing!"
+        "A) Lets eat grandma!",
+        "B) Let's eat grandma!",
+        "C) Let's eat, grandma!",
+        "D) Lets eat, grandma!"
       ],
-      answer: 1
+      answer: 2
     },
 
     {
       id: "mcq10",
+      level: "Intermediate",
       question:
-        "Identify the adjective in the sentence: \"The tall boy won the race.\"",
+        "What does the idiom \"break the ice\" mean?",
       options: [
-        "1. boy",
-        "2. won",
-        "3. tall",
-        "4. race"
+        "A) To destroy something",
+        "B) To start a conversation comfortably",
+        "C) To feel cold",
+        "D) To get angry"
+      ],
+      answer: 1
+    },
+
+    {
+      id: "mcq11",
+      level: "Hard",
+      question:
+        "Choose the grammatically correct sentence.",
+      options: [
+        "A) Had I knew, I would have helped.",
+        "B) Had I known, I would have helped.",
+        "C) Had I know, I would have helped.",
+        "D) Had I knowing, I would have helped."
+      ],
+      answer: 1
+    },
+
+    {
+      id: "mcq12",
+      level: "Hard",
+      question:
+        "Which sentence uses the passive voice?",
+      options: [
+        "A) The chef cooked the meal.",
+        "B) The meal was cooked by the chef.",
+        "C) The chef is cooking the meal.",
+        "D) The chef cooks daily."
+      ],
+      answer: 1
+    },
+
+    {
+      id: "mcq13",
+      level: "Hard",
+      question:
+        "Fill in the blank with the correct word: The manager insisted ___ reviewing the report again.",
+      options: [
+        "A) in",
+        "B) at",
+        "C) on",
+        "D) for"
+      ],
+      answer: 2
+    },
+
+    {
+      id: "mcq14",
+      level: "Hard",
+      question:
+        "What is the meaning of the word \"meticulous\"?",
+      options: [
+        "A) Careless",
+        "B) Extremely careful and detailed",
+        "C) Angry",
+        "D) Confused"
+      ],
+      answer: 1
+    },
+
+    {
+      id: "mcq15",
+      level: "Hard",
+      question:
+        "Identify the sentence with correct subject-verb agreement.",
+      options: [
+        "A) The list of items are on the table.",
+        "B) The list of items were on the table.",
+        "C) The list of items is on the table.",
+        "D) The list of items have been on the table."
       ],
       answer: 2
     }
@@ -403,7 +484,7 @@ const questions = {
 
   speaking: {
     passage:
-      "Maya joined the community library as a volunteer because she wanted younger students to enjoy reading. At first, only a few children came to her Saturday story sessions. Instead of giving up, Maya asked the children what kinds of stories they liked. She added mystery books, adventure stories, and short plays. Within a month, the room was full every Saturday, and several children began borrowing books to read at home.",
+      "Martin Luther King Jr. was one of the most important leaders in American history. He believed that all people should be treated equally, regardless of their race or background. Through peaceful protests and powerful speeches, he inspired millions of people to fight for justice and freedom.\n\nOne of his most famous speeches, 'I Have a Dream,' encouraged people to imagine a world where everyone could live together peacefully. His leadership and courage helped bring major changes to civil rights laws in the United States. Even today, Martin Luther King Jr. continues to inspire people around the world to stand up for equality, kindness, and peace.",
 
     instruction:
       "Press record and read the paragraph aloud as clearly as you can."
@@ -411,7 +492,7 @@ const questions = {
 
   writing: {
     prompt:
-      "Write a short essay about why learning English is useful. Include at least two clear reasons, one specific example, and a conclusion (minimum 80 words)."
+      "How can effective public speaking skills help a person become a better leader? Use real-life examples to support your answer."
   }
 };
 
@@ -459,12 +540,13 @@ function scoreWriting(text) {
 
   const feedback = [];
 
-  if (words >= 120) score += 2;
-  else if (words >= 90) score += 1.5;
+  if (words >= 180) score += 3;
+  else if (words >= 140) score += 2.5;
+  else if (words >= 110) score += 2;
   else if (words >= 80) score += 1;
   else {
     feedback.push(
-      "Write more detail. The essay must be at least 80 words."
+      "Write more detail. Aim for at least 110 words, with stronger answers around 140 to 180 words."
     );
   }
 
@@ -476,9 +558,15 @@ function scoreWriting(text) {
     "also",
     "another",
     "important",
-    "useful",
     "helps",
-    "improves"
+    "improves",
+    "confidence",
+    "influence",
+    "motivate",
+    "trust",
+    "team",
+    "leader",
+    "leadership"
   ];
 
   const reasonHits =
@@ -487,11 +575,12 @@ function scoreWriting(text) {
       reasonWords
     );
 
-  if (reasonHits >= 4) score += 2;
-  else if (reasonHits >= 2) score += 1;
+  if (reasonHits >= 6) score += 5;
+  else if (reasonHits >= 4) score += 4;
+  else if (reasonHits >= 2) score += 2;
   else {
     feedback.push(
-      "Include at least two clear reasons for your opinion."
+      "Explain clearly how public speaking helps leadership, such as building confidence, trust, influence, and teamwork."
     );
   }
 
@@ -501,12 +590,17 @@ function scoreWriting(text) {
     "such as",
     "school",
     "work",
-    "travel",
-    "communication",
-    "internet",
+    "speech",
+    "presentation",
+    "meeting",
+    "project",
+    "campaign",
+    "captain",
+    "prefect",
+    "manager",
+    "teacher",
     "job",
-    "career",
-    "university"
+    "career"
   ];
 
   const exampleHits =
@@ -515,11 +609,36 @@ function scoreWriting(text) {
       exampleWords
     );
 
-  if (exampleHits >= 2) score += 2;
+  if (exampleHits >= 3) score += 5;
+  else if (exampleHits >= 2) score += 3;
   else if (exampleHits === 1) score += 1;
   else {
     feedback.push(
-      "Add one specific example, not only a general statement."
+      "Add real-life examples, such as a school presentation, team project, meeting, campaign, or workplace situation."
+    );
+  }
+
+  const promptFocusHits =
+    uniqueKeywordHits(lower, [
+      "public speaking",
+      "speaking",
+      "communicate",
+      "communication",
+      "leader",
+      "leadership",
+      "audience",
+      "message",
+      "listen",
+      "persuade",
+      "inspire"
+    ]);
+
+  if (promptFocusHits >= 5) score += 4;
+  else if (promptFocusHits >= 3) score += 2.5;
+  else if (promptFocusHits >= 1) score += 1;
+  else {
+    feedback.push(
+      "Stay focused on the question: connect public speaking directly to becoming a better leader."
     );
   }
 
@@ -531,6 +650,11 @@ function scoreWriting(text) {
   if (
     sentences.length >= 5 &&
     paragraphCount >= 2 &&
+    hasConclusion
+  ) {
+    score += 4;
+  } else if (
+    sentences.length >= 4 &&
     hasConclusion
   ) {
     score += 2;
@@ -557,6 +681,12 @@ function scoreWriting(text) {
     averageSentenceLength >= 8 &&
     averageSentenceLength <= 28
   ) {
+    score += 4;
+  } else if (
+    startsWithCapital &&
+    endsWithPunctuation &&
+    sentenceCapitalRatio >= 0.6
+  ) {
     score += 2;
   } else {
     feedback.push(
@@ -565,14 +695,14 @@ function scoreWriting(text) {
   }
 
   return {
-    score: Math.min(Math.round(score), 10),
-    max: 10,
+    score: Math.min(Math.round(score), WRITING_MAX_MARKS),
+    max: WRITING_MAX_MARKS,
     words,
 
     feedback: feedback.length
       ? feedback
       : [
-          "Strong response with enough detail, reasons, and an example."
+          "Strong response with clear leadership focus, real-life examples, structure, and language control."
         ]
   };
 }
@@ -613,15 +743,16 @@ function scoreSpeaking(
     cleanDuration < 3
   ) {
     if (hasVoiceActivity) {
-      let fallbackScore = 3;
+      let fallbackScore = 9;
       const feedback = [
         "Speech was detected, but the browser could not create a transcript. Use Chrome or Edge and speak clearly near the microphone for a more accurate pronunciation score."
       ];
 
-      if (cleanDuration >= 45 || voiceSeconds >= 20) fallbackScore += 2;
-      else if (cleanDuration >= 20 || voiceSeconds >= 8) fallbackScore += 1;
+      if (cleanDuration >= 60 || voiceSeconds >= 35) fallbackScore += 6;
+      else if (cleanDuration >= 35 || voiceSeconds >= 20) fallbackScore += 4;
+      else if (cleanDuration >= 20 || voiceSeconds >= 8) fallbackScore += 2;
 
-      if (silenceRatio <= 0.7) fallbackScore += 1;
+      if (silenceRatio <= 0.7) fallbackScore += 3;
       else {
         feedback.push(
           "There were long silent gaps. Try to read continuously."
@@ -629,8 +760,8 @@ function scoreSpeaking(
       }
 
       return {
-        score: Math.min(fallbackScore, 6),
-        max: 10,
+        score: Math.min(fallbackScore, 18),
+        max: SPEAKING_MAX_MARKS,
         transcript: cleanTranscript,
         wordsSpoken: 0,
         wordsPerMinute: 0,
@@ -645,7 +776,7 @@ function scoreSpeaking(
 
     return {
       score: 0,
-      max: 10,
+      max: SPEAKING_MAX_MARKS,
 
       transcript: cleanTranscript,
 
@@ -718,7 +849,7 @@ function scoreSpeaking(
       accuracy * 0.6 +
       completion * 0.25 +
       paceScore * 0.15
-    ) * 10
+    ) * SPEAKING_MAX_MARKS
   );
 
   const feedback = [];
@@ -755,7 +886,7 @@ function scoreSpeaking(
 
   return {
     score,
-    max: 10,
+    max: SPEAKING_MAX_MARKS,
 
     transcript: cleanTranscript,
 
@@ -795,17 +926,24 @@ function getStudentLevel(
 function cleanStudentProfile({
   studentName = "",
   studentAge = "",
+  studentEmail = "",
   gender = ""
 }) {
   const age = Number(studentAge);
 
   const normalizedGender =
     String(gender || "").trim();
+  const email =
+    String(studentEmail || "")
+      .trim()
+      .toLowerCase();
 
   return {
     name:
       String(studentName || "Student")
         .trim() || "Student",
+
+    email,
 
     age:
       Number.isInteger(age) &&
@@ -881,6 +1019,7 @@ app.post(
       speakingAudio = null,
       studentName = "",
       studentAge = "",
+      studentEmail = "",
       gender = ""
     } = req.body;
 
@@ -888,6 +1027,7 @@ app.post(
       cleanStudentProfile({
         studentName,
         studentAge,
+        studentEmail,
         gender
       });
 
@@ -904,7 +1044,7 @@ app.post(
             selected === question.answer;
 
           if (correct) {
-            mcqScore += 1;
+            mcqScore += MCQ_MARKS_PER_QUESTION;
           }
 
           return {
@@ -923,7 +1063,7 @@ app.post(
       );
 
     const mcqMax =
-      questions.mcq.length;
+      questions.mcq.length * MCQ_MARKS_PER_QUESTION;
 
     const writing =
       scoreWriting(writingAnswer);
@@ -956,6 +1096,7 @@ app.post(
     const response = {
       studentName: student.name,
       studentAge: student.age,
+      studentEmail: student.email,
       gender: student.gender,
 
       total,
@@ -976,6 +1117,8 @@ app.post(
         mcq: {
           score: mcqScore,
           max: mcqMax,
+          marksPerQuestion:
+            MCQ_MARKS_PER_QUESTION,
           results: mcqResults
         },
 
@@ -994,6 +1137,9 @@ app.post(
 
           studentName:
             response.studentName,
+
+          studentEmail:
+            response.studentEmail,
 
           answers: {
             mcq: mcqAnswers,

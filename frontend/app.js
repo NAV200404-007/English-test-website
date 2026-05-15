@@ -16,6 +16,7 @@ const recordingStatus = document.querySelector("#recordingStatus");
 const speakingTimer = document.querySelector("#speakingTimer");
 
 const studentName = document.querySelector("#studentName");
+const studentEmail = document.querySelector("#studentEmail");
 const studentAge = document.querySelector("#studentAge");
 
 const genderInput = document.querySelector("#genderInput");
@@ -79,7 +80,7 @@ function renderMcq(questions) {
       return `
         <div class="question">
           <div class="question-title">
-            ${index + 1}. ${question.question}
+            ${index + 1}. ${question.level ? `${question.level}: ` : ""}${question.question}
           </div>
 
           <div class="options">
@@ -116,8 +117,7 @@ async function loadTest() {
 
   renderMcq(testData.mcq);
 
-  totalMarks.textContent =
-    testData.mcq.length + 20;
+  totalMarks.textContent = "100";
 
   writingPrompt.textContent =
     testData.writing.prompt;
@@ -550,6 +550,7 @@ async function submitTest(fromTimer = false) {
 
         body: JSON.stringify({
           studentName: studentName.value,
+          studentEmail: studentEmail.value,
           studentAge: studentAge.value,
           gender: genderInput.value,
 

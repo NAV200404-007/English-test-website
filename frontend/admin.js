@@ -51,6 +51,7 @@ function submissionToCsvRow(submission) {
   return [
     submission.createdAt || "",
     student.name || result.studentName || "",
+    student.email || result.studentEmail || submission.studentEmail || "",
     student.age ?? result.studentAge ?? "",
     student.gender || result.gender || "",
     sectionScore(sections.mcq),
@@ -78,6 +79,7 @@ function downloadCsv(submissions) {
   const headers = [
     "Date",
     "Student",
+    "Email",
     "Age",
     "Gender",
     "MCQ Score",
@@ -147,6 +149,7 @@ function renderSubmissions(submissions) {
         <tr>
           <td>${escapeHtml(submission.createdAt || "")}</td>
           <td>${escapeHtml(student.name || result.studentName)}</td>
+          <td>${escapeHtml(student.email || result.studentEmail || submission.studentEmail || "")}</td>
           <td>${escapeHtml(student.age ?? result.studentAge ?? "")}</td>
           <td>${escapeHtml(student.gender || result.gender || "")}</td>
           <td>${escapeHtml(sectionScore(sections.mcq))}</td>
@@ -166,6 +169,7 @@ function renderSubmissions(submissions) {
         <tr>
           <th>Date</th>
           <th>Student</th>
+          <th>Email</th>
           <th>Age</th>
           <th>Gender</th>
           <th>MCQ</th>

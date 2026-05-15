@@ -28,8 +28,11 @@
 
       <form id="testForm" class="test-form">
         <section class="panel student-panel">
-          <label for="studentName">Student name</label>
-          <input id="studentName" name="studentName" type="text" placeholder="Enter student name" required />
+          <label for="studentName">Full name (as in passport)</label>
+          <input id="studentName" name="studentName" type="text" placeholder="Enter full name as in passport" required />
+
+          <label for="studentEmail">Email</label>
+          <input id="studentEmail" name="studentEmail" type="email" placeholder="Enter email address" required />
 
           <label for="studentAge">Student age</label>
           <input id="studentAge" name="studentAge" type="number" placeholder="Enter age" required />
@@ -60,7 +63,7 @@
           <textarea id="writingAnswer" rows="9" placeholder="Write your essay here..." required></textarea>
           <div class="helper-row">
             <span id="wordCount">0 words</span>
-            <span>10 marks</span>
+            <span>25 marks</span>
           </div>
         </section>
 
@@ -80,7 +83,7 @@
           <textarea id="speakingTranscript" rows="5" placeholder="Your speech transcript will appear here after recording..." readonly required></textarea>
           <div class="helper-row">
             <span id="speakingTimer">0 seconds</span>
-            <span>10 marks</span>
+            <span>30 marks</span>
           </div>
         </section>
 
