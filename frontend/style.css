@@ -407,6 +407,12 @@ button.secondary:hover {
   overflow-x: auto;
 }
 
+.admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
