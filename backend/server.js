@@ -30,6 +30,7 @@ const LOCAL_DATA_FILE = path.join(
 let mongoClient;
 
 let databaseReady = false;
+let mongoUnavailable = false;
 const UPLOAD_DIR =
   process.env.UPLOAD_DIR ||
   path.join(__dirname, "uploads");
@@ -99,74 +100,83 @@ app.use(
 );
 
 async function getSubmissionsCollection() {
-  if (!MONGODB_URI) return null;
+  if (!MONGODB_URI || mongoUnavailable) return null;
 
-  if (!mongoClient) {
-    mongoClient = new MongoClient(
-      MONGODB_URI,
-      {
-        serverSelectionTimeoutMS: 5000
-      }
-    );
-
-    await mongoClient.connect();
-  }
-
-  const collection = mongoClient
-    .db(MONGODB_DB)
-    .collection("submissions");
-
-  if (!databaseReady) {
-    await collection.createIndex({
-      createdAt: -1
-    });
-
-    await collection.createIndex({
-      "student.name": 1
-    });
-
-    await collection.createIndex({
-      "result.level": 1
-    });
-
-    await collection.updateMany(
-      { student: { $exists: false } },
-      [
+  try {
+    if (!mongoClient) {
+      mongoClient = new MongoClient(
+        MONGODB_URI,
         {
-          $set: {
-            schemaVersion: 2,
+          serverSelectionTimeoutMS: 5000
+        }
+      );
 
-            student: {
-              name: {
-                $ifNull: [
-                  "$studentName",
-                  "$result.studentName"
-                ]
-              },
+      await mongoClient.connect();
+    }
 
-              age: {
-                $ifNull: [
-                  "$result.studentAge",
-                  null
-                ]
-              },
+    const collection = mongoClient
+      .db(MONGODB_DB)
+      .collection("submissions");
 
-              gender: {
-                $ifNull: [
-                  "$result.gender",
-                  ""
-                ]
+    if (!databaseReady) {
+      await collection.createIndex({
+        createdAt: -1
+      });
+
+      await collection.createIndex({
+        "student.name": 1
+      });
+
+      await collection.createIndex({
+        "result.level": 1
+      });
+
+      await collection.updateMany(
+        { student: { $exists: false } },
+        [
+          {
+            $set: {
+              schemaVersion: 2,
+
+              student: {
+                name: {
+                  $ifNull: [
+                    "$studentName",
+                    "$result.studentName"
+                  ]
+                },
+
+                age: {
+                  $ifNull: [
+                    "$result.studentAge",
+                    null
+                  ]
+                },
+
+                gender: {
+                  $ifNull: [
+                    "$result.gender",
+                    ""
+                  ]
+                }
               }
             }
           }
-        }
-      ]
+        ]
+      );
+
+      databaseReady = true;
+    }
+
+    return collection;
+  } catch (error) {
+    mongoUnavailable = true;
+    console.warn(
+      "MongoDB unavailable. Falling back to local JSON storage:",
+      error.message
     );
-
-    databaseReady = true;
+    return null;
   }
-
-  return collection;
 }
 
 async function readLocalSubmissions() {

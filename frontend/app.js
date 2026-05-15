@@ -106,7 +106,7 @@ function collectMcqAnswers() {
 }
 
 async function loadTest() {
-  const response = await fetch(`${API_BASE}/test`);
+  const response = await fetch(`${API_BASE}/test/`);
 
   if (!response.ok) {
     throw new Error("Could not load test questions.");
