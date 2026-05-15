@@ -55,6 +55,15 @@ let testTimerId = null;
 let secondsLeft = TEST_DURATION_SECONDS;
 
 let isSubmitting = false;
+let writingStartedAt = 0;
+let writingLastInputAt = 0;
+let writingInputEvents = 0;
+let writingKeystrokes = 0;
+let writingBackspaces = 0;
+let writingPasteAttempts = 0;
+let writingBlockedPasteCharacters = 0;
+let writingMaxTextJump = 0;
+let writingPreviousLength = 0;
 
 function wordsIn(text) {
   return text.trim().split(/\s+/).filter(Boolean).length;
@@ -278,6 +287,54 @@ function cleanAgeInput() {
     .replace(/^0+(\d)/, "$1");
 }
 
+function markWritingStarted() {
+  if (!writingStartedAt) {
+    writingStartedAt = Date.now();
+  }
+
+  writingLastInputAt = Date.now();
+}
+
+function resetWritingMetrics() {
+  writingStartedAt = 0;
+  writingLastInputAt = 0;
+  writingInputEvents = 0;
+  writingKeystrokes = 0;
+  writingBackspaces = 0;
+  writingPasteAttempts = 0;
+  writingBlockedPasteCharacters = 0;
+  writingMaxTextJump = 0;
+  writingPreviousLength = 0;
+}
+
+function getWritingMetrics() {
+  const words = wordsIn(writingAnswer.value);
+  const elapsedSeconds =
+    writingStartedAt && writingLastInputAt
+      ? Math.max(
+          1,
+          Math.round(
+            (writingLastInputAt - writingStartedAt) / 1000
+          )
+        )
+      : 0;
+
+  return {
+    elapsedSeconds,
+    inputEvents: writingInputEvents,
+    keystrokes: writingKeystrokes,
+    backspaces: writingBackspaces,
+    pasteAttempts: writingPasteAttempts,
+    blockedPasteCharacters: writingBlockedPasteCharacters,
+    maxTextJump: writingMaxTextJump,
+    words,
+    wordsPerMinute:
+      elapsedSeconds > 0
+        ? Math.round((words / elapsedSeconds) * 60)
+        : 0
+  };
+}
+
 function getVoiceMetrics() {
   const sampleCount = volumeSamples.length;
   const totalVolume = volumeSamples.reduce(
@@ -464,7 +521,53 @@ async function stopRecording() {
   analyser = null;
 }
 
+writingAnswer.addEventListener("keydown", (event) => {
+  if (event.key.length === 1) {
+    writingKeystrokes += 1;
+  }
+
+  if (event.key === "Backspace" || event.key === "Delete") {
+    writingBackspaces += 1;
+  }
+});
+
+writingAnswer.addEventListener("paste", (event) => {
+  event.preventDefault();
+
+  writingPasteAttempts += 1;
+  writingBlockedPasteCharacters +=
+    event.clipboardData?.getData("text")?.length || 0;
+
+  markWritingStarted();
+});
+
+writingAnswer.addEventListener("drop", (event) => {
+  event.preventDefault();
+  writingPasteAttempts += 1;
+});
+
+writingAnswer.addEventListener("beforeinput", (event) => {
+  if (
+    event.inputType === "insertFromPaste" ||
+    event.inputType === "insertFromDrop"
+  ) {
+    event.preventDefault();
+    writingPasteAttempts += 1;
+  }
+});
+
 writingAnswer.addEventListener("input", () => {
+  markWritingStarted();
+
+  writingInputEvents += 1;
+  writingMaxTextJump = Math.max(
+    writingMaxTextJump,
+    Math.abs(
+      writingAnswer.value.length - writingPreviousLength
+    )
+  );
+  writingPreviousLength = writingAnswer.value.length;
+
   wordCount.textContent =
     `${wordsIn(writingAnswer.value)} words`;
 });
@@ -486,6 +589,7 @@ resetButton.addEventListener("click", () => {
   });
 
   wordCount.textContent = "0 words";
+  resetWritingMetrics();
 
   speakingDuration = 0;
   resetVoiceMetrics();
@@ -615,6 +719,8 @@ async function submitTest(fromTimer = false) {
           mcqAnswers: collectMcqAnswers(),
 
           writingAnswer: writingAnswer.value,
+          writingMetrics:
+            getWritingMetrics(),
 
           speakingTranscript:
             speakingTranscript.value,

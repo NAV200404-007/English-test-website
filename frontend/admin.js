@@ -28,6 +28,20 @@ function feedbackText(section) {
   return feedback || "";
 }
 
+function writingIntegrity(submission, result) {
+  return (
+    result.sections?.writingIntegrity ||
+    submission.answers?.writingIntegrity ||
+    {}
+  );
+}
+
+function integrityReasons(integrity) {
+  return Array.isArray(integrity.reasons)
+    ? integrity.reasons.join(" ")
+    : "";
+}
+
 function csvValue(value) {
   const text = String(value ?? "");
 
@@ -39,6 +53,8 @@ function submissionToCsvRow(submission) {
   const student = submission.student || {};
   const answers = submission.answers || {};
   const sections = result.sections || {};
+  const integrity =
+    writingIntegrity(submission, result);
   const audioUrl =
     submission.speakingAudio?.audioUrl ||
     answers.speakingAudio?.audioUrl ||
@@ -62,6 +78,13 @@ function submissionToCsvRow(submission) {
     result.percentage ?? "",
     result.level || "",
     result.grade || "",
+    integrity.risk || "",
+    integrity.riskScore ?? "",
+    integrityReasons(integrity),
+    integrity.metrics?.elapsedSeconds ?? "",
+    integrity.metrics?.wordsPerMinute ?? "",
+    integrity.metrics?.pasteAttempts ?? "",
+    integrity.metrics?.maxTextJump ?? "",
     sections.writing?.words ?? "",
     sections.speaking?.wordsSpoken ?? "",
     sections.speaking?.wordsPerMinute ?? "",
@@ -90,6 +113,13 @@ function downloadCsv(submissions) {
     "Percentage",
     "Level",
     "Grade",
+    "Essay AI Risk",
+    "Essay Risk Score",
+    "Essay Risk Reasons",
+    "Essay Writing Seconds",
+    "Essay Words Per Minute",
+    "Essay Paste Attempts",
+    "Essay Max Text Jump",
     "Writing Words",
     "Speaking Words",
     "Speaking WPM",
@@ -138,6 +168,8 @@ function renderSubmissions(submissions) {
       const result = submission.result || submission;
       const student = submission.student || {};
       const sections = result.sections || {};
+      const integrity =
+        writingIntegrity(submission, result);
       const audioUrl =
         submission.speakingAudio?.audioUrl ||
         submission.answers?.speakingAudio?.audioUrl ||
@@ -158,6 +190,7 @@ function renderSubmissions(submissions) {
           <td>${audioCell}</td>
           <td>${escapeHtml(result.total)}/${escapeHtml(result.maxTotal)}</td>
           <td>${escapeHtml(result.level)}</td>
+          <td>${escapeHtml(integrity.risk || "Low")}</td>
         </tr>
       `;
     })
@@ -178,6 +211,7 @@ function renderSubmissions(submissions) {
           <th>Audio</th>
           <th>Total</th>
           <th>Level</th>
+          <th>Essay AI Risk</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>

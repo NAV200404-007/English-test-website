@@ -707,6 +707,103 @@ function scoreWriting(text) {
   };
 }
 
+function analyzeWritingIntegrity(
+  text,
+  metrics = {}
+) {
+  const words = countWords(text);
+  const elapsedSeconds =
+    Number(metrics.elapsedSeconds) || 0;
+  const keystrokes =
+    Number(metrics.keystrokes) || 0;
+  const pasteAttempts =
+    Number(metrics.pasteAttempts) || 0;
+  const maxTextJump =
+    Number(metrics.maxTextJump) || 0;
+  const inputEvents =
+    Number(metrics.inputEvents) || 0;
+  const backspaces =
+    Number(metrics.backspaces) || 0;
+  const wordsPerMinute =
+    elapsedSeconds > 0
+      ? Math.round((words / elapsedSeconds) * 60)
+      : Number(metrics.wordsPerMinute) || 0;
+
+  let riskScore = 0;
+  const reasons = [];
+
+  if (pasteAttempts > 0) {
+    riskScore += 3;
+    reasons.push(
+      "Paste or drag-and-drop attempt was blocked in the essay field."
+    );
+  }
+
+  if (words >= 80 && elapsedSeconds > 0 && elapsedSeconds < 180) {
+    riskScore += 2;
+    reasons.push(
+      "Essay was completed unusually quickly for its length."
+    );
+  }
+
+  if (wordsPerMinute > 65 && words >= 80) {
+    riskScore += 2;
+    reasons.push(
+      "Essay typing speed was unusually high."
+    );
+  }
+
+  if (maxTextJump > 80) {
+    riskScore += 2;
+    reasons.push(
+      "A large amount of essay text appeared in one input event."
+    );
+  }
+
+  if (words >= 100 && keystrokes < words * 3) {
+    riskScore += 2;
+    reasons.push(
+      "The essay has many words compared with the number of recorded keystrokes."
+    );
+  }
+
+  if (
+    words >= 120 &&
+    backspaces <= 1 &&
+    inputEvents <= words / 2
+  ) {
+    riskScore += 1;
+    reasons.push(
+      "Very little editing behavior was recorded for a long essay."
+    );
+  }
+
+  const risk =
+    riskScore >= 5
+      ? "High"
+      : riskScore >= 3
+        ? "Medium"
+        : "Low";
+
+  return {
+    risk,
+    riskScore,
+    reasons,
+    metrics: {
+      elapsedSeconds,
+      keystrokes,
+      backspaces,
+      pasteAttempts,
+      blockedPasteCharacters:
+        Number(metrics.blockedPasteCharacters) || 0,
+      inputEvents,
+      maxTextJump,
+      words,
+      wordsPerMinute
+    }
+  };
+}
+
 function scoreSpeaking(
   transcript,
   durationSeconds = 0,
@@ -1013,6 +1110,7 @@ app.post(
     const {
       mcqAnswers = {},
       writingAnswer = "",
+      writingMetrics = {},
       speakingTranscript = "",
       speakingDuration = 0,
       speakingMetrics = {},
@@ -1067,6 +1165,11 @@ app.post(
 
     const writing =
       scoreWriting(writingAnswer);
+    const writingIntegrity =
+      analyzeWritingIntegrity(
+        writingAnswer,
+        writingMetrics
+      );
 
     const speaking =
       scoreSpeaking(
@@ -1123,6 +1226,7 @@ app.post(
         },
 
         writing,
+        writingIntegrity,
 
         speaking
       }
@@ -1146,6 +1250,11 @@ app.post(
 
             writing:
               writingAnswer,
+
+            writingMetrics:
+              writingIntegrity.metrics,
+
+            writingIntegrity,
 
             speakingTranscript,
 
