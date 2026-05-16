@@ -1,15 +1,20 @@
 :root {
   color-scheme: light;
-  --bg: #f5f7fb;
+  --bg: #eef8fc;
   --surface: #ffffff;
-  --ink: #152033;
-  --muted: #607089;
-  --line: #dbe3ef;
-  --accent: #136f63;
-  --accent-dark: #0d544b;
+  --ink: #0b1222;
+  --muted: #5a6e86;
+  --line: #cce8f4;
+  --navy: #0b1222;
+  --navy-soft: #121d33;
+  --accent: #08b8e6;
+  --accent-bright: #27d6f8;
+  --accent-dark: #067fa3;
+  --sun: #ffd166;
+  --coral: #ff6b6b;
   --warn: #b85721;
-  --good: #137a45;
-  --shadow: 0 18px 50px rgba(35, 52, 78, 0.12);
+  --good: #0f9f6e;
+  --shadow: 0 18px 45px rgba(6, 127, 163, 0.16);
 }
 
 * {
@@ -19,7 +24,9 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(180deg, #eef3f8 0%, var(--bg) 36%, #ffffff 100%);
+  background:
+    linear-gradient(135deg, rgba(8, 184, 230, 0.16) 0 16%, transparent 16% 100%),
+    linear-gradient(180deg, #091224 0, #10213d 280px, var(--bg) 281px, #ffffff 100%);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -33,7 +40,7 @@ textarea {
 .app-shell {
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 32px 0 56px;
+  padding: 24px 0 56px;
 }
 
 .intro {
@@ -41,12 +48,29 @@ textarea {
   align-items: end;
   justify-content: space-between;
   gap: 24px;
-  padding: 32px 0 24px;
+  padding: 24px 0 24px;
+  color: white;
+}
+
+.brand-card {
+  width: min(440px, 100%);
+  margin-bottom: 18px;
+  border: 1px solid rgba(39, 214, 248, 0.36);
+  border-radius: 8px;
+  background: var(--navy);
+  padding: 10px 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+}
+
+.brand-logo {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .eyebrow {
   margin: 0 0 8px;
-  color: var(--accent);
+  color: var(--accent-bright);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0;
@@ -73,16 +97,16 @@ h2 {
 .subtitle {
   max-width: 680px;
   margin-bottom: 0;
-  color: var(--muted);
+  color: #d9f6ff;
   font-size: 1.05rem;
   line-height: 1.6;
 }
 
 .score-chip {
   min-width: 136px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(39, 214, 248, 0.32);
   border-radius: 8px;
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.94);
   padding: 18px;
   box-shadow: var(--shadow);
   text-align: center;
@@ -101,17 +125,17 @@ h2 {
 }
 
 .timer-chip.danger {
-  border-color: #d45831;
-  background: #fff3ee;
+  border-color: var(--coral);
+  background: #fff1f1;
 }
 
 .timer-chip.danger span {
-  color: #b83218;
+  color: #c73535;
 }
 
 .score-chip span {
   display: block;
-  color: var(--accent);
+  color: var(--accent-dark);
   font-size: 2.15rem;
   font-weight: 800;
 }
@@ -134,33 +158,35 @@ h2 {
   flex: 1;
   padding: 18px;
   text-align: center;
-  border: 1px solid var(--line);
+  border: 2px solid var(--line);
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
   transition: 0.3s;
-  background: #fbfcff;
+  background: #f6fcff;
   color: var(--ink);
 }
 
 .gender-box:hover {
-  transform: scale(1.03);
+  transform: translateY(-2px);
+  border-color: var(--accent);
 }
 
 .gender-box.selected {
   border-color: var(--accent);
-  background: #e7f3f0;
-  color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(19, 111, 99, 0.16);
+  background: #e4f9ff;
+  color: var(--accent-dark);
+  box-shadow: 0 0 0 4px rgba(39, 214, 248, 0.18);
 }
 
 .panel,
 .result-panel {
   border: 1px solid var(--line);
+  border-top: 5px solid var(--accent);
   border-radius: 8px;
   background: var(--surface);
   padding: 24px;
-  box-shadow: 0 8px 28px rgba(35, 52, 78, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .student-panel {
@@ -177,9 +203,9 @@ label {
 input,
 textarea {
   width: 100%;
-  border: 1px solid var(--line);
+  border: 2px solid var(--line);
   border-radius: 6px;
-  background: #fbfcff;
+  background: #f8fdff;
   color: var(--ink);
   padding: 13px 14px;
   outline: none;
@@ -193,7 +219,7 @@ textarea {
 input:focus,
 textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(19, 111, 99, 0.16);
+  box-shadow: 0 0 0 4px rgba(39, 214, 248, 0.18);
 }
 
 .section-heading {
@@ -207,7 +233,13 @@ textarea:focus {
 }
 
 .section-heading span {
-  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: var(--accent-bright);
+  padding: 6px 12px;
   font-weight: 800;
 }
 
@@ -219,6 +251,8 @@ textarea:focus {
 .question {
   display: grid;
   gap: 12px;
+  border-left: 4px solid var(--sun);
+  padding-left: 14px;
 }
 
 .question-title {
@@ -237,11 +271,18 @@ textarea:focus {
   min-height: 54px;
   align-items: center;
   gap: 10px;
-  border: 1px solid var(--line);
+  border: 2px solid var(--line);
   border-radius: 6px;
-  background: #fbfcff;
+  background: #f9fdff;
   padding: 12px;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.option:hover {
+  border-color: var(--accent);
+  background: #eafaff;
+  transform: translateY(-1px);
 }
 
 .option input {
@@ -255,13 +296,13 @@ textarea:focus {
 
 .prompt,
 .passage {
-  color: #33435a;
+  color: #24354e;
   line-height: 1.65;
 }
 
 .passage {
-  border-left: 4px solid var(--accent);
-  background: #f4faf8;
+  border-left: 5px solid var(--accent);
+  background: #eefbff;
   padding: 16px 18px;
 }
 
@@ -300,15 +341,16 @@ textarea:focus {
 button {
   border: 0;
   border-radius: 6px;
-  background: var(--accent);
+  background: var(--accent-dark);
   color: white;
   padding: 13px 22px;
   font-weight: 800;
   cursor: pointer;
+  box-shadow: 0 8px 18px rgba(6, 127, 163, 0.22);
 }
 
 button:hover {
-  background: var(--accent-dark);
+  background: var(--navy-soft);
 }
 
 button:disabled {
@@ -320,6 +362,7 @@ button.secondary {
   border: 1px solid var(--line);
   background: white;
   color: var(--ink);
+  box-shadow: none;
 }
 
 button.secondary:hover {
@@ -332,7 +375,7 @@ button.secondary:hover {
   justify-content: center;
   min-height: 48px;
   border-radius: 6px;
-  background: var(--accent);
+  background: var(--accent-dark);
   color: white;
   padding: 13px 22px;
   font-weight: 800;
@@ -370,7 +413,7 @@ button.secondary:hover {
 }
 
 .result-score {
-  color: var(--accent);
+  color: var(--accent-dark);
   font-size: 2.4rem;
   font-weight: 900;
 }
@@ -432,7 +475,7 @@ td {
 }
 
 th {
-  color: var(--accent);
+  color: var(--accent-dark);
   font-size: 0.85rem;
   text-transform: uppercase;
 }
