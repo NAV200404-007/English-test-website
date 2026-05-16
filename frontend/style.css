@@ -1,15 +1,16 @@
 :root {
   color-scheme: light;
-  --bg: #eef8fc;
+  --bg: #f3fbff;
   --surface: #ffffff;
   --ink: #0b1222;
   --muted: #5a6e86;
-  --line: #cce8f4;
+  --line: #d7edf7;
   --navy: #0b1222;
-  --navy-soft: #121d33;
+  --navy-soft: #17253d;
   --accent: #08b8e6;
   --accent-bright: #27d6f8;
   --accent-dark: #067fa3;
+  --sky: #e8faff;
   --sun: #ffd166;
   --coral: #ff6b6b;
   --warn: #b85721;
@@ -25,8 +26,9 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    linear-gradient(135deg, rgba(8, 184, 230, 0.16) 0 16%, transparent 16% 100%),
-    linear-gradient(180deg, #091224 0, #10213d 280px, var(--bg) 281px, #ffffff 100%);
+    radial-gradient(circle at 12% 8%, rgba(39, 214, 248, 0.2), transparent 28%),
+    radial-gradient(circle at 88% 4%, rgba(255, 209, 102, 0.22), transparent 24%),
+    linear-gradient(180deg, #e9faff 0, var(--bg) 42%, #ffffff 100%);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -45,21 +47,21 @@ textarea {
 
 .intro {
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: space-between;
   gap: 24px;
   padding: 24px 0 24px;
-  color: white;
+  color: var(--ink);
 }
 
 .brand-card {
-  width: min(440px, 100%);
+  width: min(380px, 100%);
   margin-bottom: 18px;
-  border: 1px solid rgba(39, 214, 248, 0.36);
+  border: 1px solid rgba(39, 214, 248, 0.24);
   border-radius: 8px;
   background: var(--navy);
-  padding: 10px 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+  padding: 8px 10px;
+  box-shadow: 0 18px 42px rgba(8, 184, 230, 0.2);
 }
 
 .brand-logo {
@@ -70,7 +72,7 @@ textarea {
 
 .eyebrow {
   margin: 0 0 8px;
-  color: var(--accent-bright);
+  color: var(--accent-dark);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0;
@@ -97,7 +99,7 @@ h2 {
 .subtitle {
   max-width: 680px;
   margin-bottom: 0;
-  color: #d9f6ff;
+  color: var(--muted);
   font-size: 1.05rem;
   line-height: 1.6;
 }
@@ -116,6 +118,42 @@ h2 {
   display: flex;
   align-items: stretch;
   gap: 12px;
+}
+
+.start-screen {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.start-copy {
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--sky), #ffffff);
+  padding: 18px;
+}
+
+.start-actions {
+  grid-column: 2;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.test-shell {
+  display: grid;
+  gap: 18px;
+}
+
+.test-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.74);
+  padding: 16px;
+  box-shadow: var(--shadow);
 }
 
 .timer-chip {
@@ -182,9 +220,8 @@ h2 {
 .panel,
 .result-panel {
   border: 1px solid var(--line);
-  border-top: 5px solid var(--accent);
   border-radius: 8px;
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.9);
   padding: 24px;
   box-shadow: var(--shadow);
 }
@@ -237,8 +274,8 @@ textarea:focus {
   align-items: center;
   min-height: 34px;
   border-radius: 999px;
-  background: var(--navy);
-  color: var(--accent-bright);
+  background: #e7f9ff;
+  color: var(--accent-dark);
   padding: 6px 12px;
   font-weight: 800;
 }
@@ -251,8 +288,10 @@ textarea:focus {
 .question {
   display: grid;
   gap: 12px;
-  border-left: 4px solid var(--sun);
-  padding-left: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff, #f8fdff);
+  padding: 16px;
 }
 
 .question-title {
@@ -341,7 +380,7 @@ textarea:focus {
 button {
   border: 0;
   border-radius: 6px;
-  background: var(--accent-dark);
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
   color: white;
   padding: 13px 22px;
   font-weight: 800;
@@ -350,7 +389,7 @@ button {
 }
 
 button:hover {
-  background: var(--navy-soft);
+  background: linear-gradient(135deg, var(--accent-dark), var(--navy-soft));
 }
 
 button:disabled {
@@ -497,7 +536,8 @@ th {
   }
 
   .intro,
-  .result-top {
+  .result-top,
+  .test-status {
     align-items: stretch;
     flex-direction: column;
   }
@@ -509,8 +549,13 @@ th {
 
   .student-panel,
   .options,
-  .breakdown {
+  .breakdown,
+  .start-screen {
     grid-template-columns: 1fr;
+  }
+
+  .start-actions {
+    grid-column: 1;
   }
 
   .section-heading {

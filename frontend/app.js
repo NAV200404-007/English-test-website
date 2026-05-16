@@ -1,5 +1,8 @@
 const API_BASE = "/api";
 
+const startScreen = document.querySelector("#startScreen");
+const testShell = document.querySelector("#testShell");
+const detailsForm = document.querySelector("#detailsForm");
 const form = document.querySelector("#testForm");
 const mcqContainer = document.querySelector("#mcqContainer");
 const writingPrompt = document.querySelector("#writingPrompt");
@@ -31,6 +34,8 @@ const testTimer = document.querySelector("#testTimer");
 const totalMarks = document.querySelector("#totalMarks");
 const TEST_DURATION_SECONDS = 20 * 60;
 const TIMER_DEADLINE_KEY = "englishTestTimerDeadline";
+const TEST_STARTED_KEY = "englishTestStarted";
+const STUDENT_DETAILS_KEY = "englishTestStudentDetails";
 
 let testData = null;
 
@@ -55,6 +60,7 @@ let testTimerId = null;
 let secondsLeft = TEST_DURATION_SECONDS;
 
 let isSubmitting = false;
+let testStarted = false;
 let writingStartedAt = 0;
 let writingLastInputAt = 0;
 let writingInputEvents = 0;
@@ -169,11 +175,15 @@ function updateTestTimer() {
 }
 
 function startTestTimer() {
+  if (testTimerId) {
+    window.clearInterval(testTimerId);
+  }
+
   let deadline = Number(
     sessionStorage.getItem(TIMER_DEADLINE_KEY)
   );
 
-  if (!deadline || deadline <= Date.now()) {
+  if (!deadline) {
     deadline =
       Date.now() + TEST_DURATION_SECONDS * 1000;
 
@@ -181,6 +191,11 @@ function startTestTimer() {
       TIMER_DEADLINE_KEY,
       String(deadline)
     );
+  } else if (deadline <= Date.now()) {
+    secondsLeft = 0;
+    updateTestTimer();
+    submitTest(true);
+    return;
   }
 
   updateTestTimer();
@@ -285,6 +300,107 @@ function cleanAgeInput() {
   studentAge.value = studentAge.value
     .replace(/[^\d]/g, "")
     .replace(/^0+(\d)/, "$1");
+}
+
+function getStudentDetails() {
+  return {
+    studentName: studentName.value.trim(),
+    studentEmail: studentEmail.value.trim(),
+    studentAge: studentAge.value.trim(),
+    gender: genderInput.value
+  };
+}
+
+function saveStudentDetails() {
+  sessionStorage.setItem(
+    STUDENT_DETAILS_KEY,
+    JSON.stringify(getStudentDetails())
+  );
+}
+
+function restoreStudentDetails() {
+  const saved = sessionStorage.getItem(STUDENT_DETAILS_KEY);
+
+  if (!saved) return;
+
+  try {
+    const details = JSON.parse(saved);
+
+    studentName.value = details.studentName || "";
+    studentEmail.value = details.studentEmail || "";
+    studentAge.value = details.studentAge || "";
+    genderInput.value = details.gender || "";
+
+    genderBoxes.forEach((box) => {
+      const selected = box.dataset.gender === genderInput.value;
+
+      box.classList.toggle("selected", selected);
+      box.setAttribute(
+        "aria-pressed",
+        selected ? "true" : "false"
+      );
+    });
+  } catch {
+    sessionStorage.removeItem(STUDENT_DETAILS_KEY);
+  }
+}
+
+function validateStudentDetails() {
+  if (!studentName.value.trim()) {
+    alert("Please enter your full name as in passport.");
+    studentName.focus();
+    return false;
+  }
+
+  if (!studentEmail.validity.valid) {
+    alert("Please enter a valid email address.");
+    studentEmail.focus();
+    return false;
+  }
+
+  const age = Number(studentAge.value);
+
+  if (
+    !Number.isInteger(age) ||
+    age < 1 ||
+    age > 120
+  ) {
+    alert("Please enter a valid age between 1 and 120.");
+    studentAge.focus();
+    return false;
+  }
+
+  if (!genderInput.value) {
+    alert("Please select a gender.");
+    return false;
+  }
+
+  return true;
+}
+
+function showStartScreen() {
+  testStarted = false;
+  startScreen.classList.remove("hidden");
+  testShell.classList.add("hidden");
+  window.clearInterval(testTimerId);
+  sessionStorage.removeItem(TEST_STARTED_KEY);
+  sessionStorage.removeItem(TIMER_DEADLINE_KEY);
+}
+
+function showTestScreen() {
+  testStarted = true;
+  startScreen.classList.add("hidden");
+  testShell.classList.remove("hidden");
+}
+
+function beginTest() {
+  if (!validateStudentDetails()) return;
+
+  saveStudentDetails();
+  sessionStorage.setItem(TEST_STARTED_KEY, "true");
+  showTestScreen();
+  startTestTimer();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function markWritingStarted() {
@@ -580,13 +696,13 @@ studentAge.addEventListener("keydown", (event) => {
 
 studentAge.addEventListener("input", cleanAgeInput);
 
+detailsForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  beginTest();
+});
+
 resetButton.addEventListener("click", () => {
   form.reset();
-
-  genderBoxes.forEach((box) => {
-    box.classList.remove("selected");
-    box.setAttribute("aria-pressed", "false");
-  });
 
   wordCount.textContent = "0 words";
   resetWritingMetrics();
@@ -622,6 +738,7 @@ genderBoxes.forEach((box) => {
     box.setAttribute("aria-pressed", "true");
 
     genderInput.value = box.dataset.gender;
+    saveStudentDetails();
   });
 });
 
@@ -660,6 +777,11 @@ async function uploadSpeakingAudio() {
 }
 
 async function submitTest(fromTimer = false) {
+  if (!testStarted && !fromTimer) {
+    beginTest();
+    return;
+  }
+
   if (isSubmitting) return;
 
   isSubmitting = true;
@@ -749,6 +871,8 @@ async function submitTest(fromTimer = false) {
     );
 
     sessionStorage.removeItem(TIMER_DEADLINE_KEY);
+    sessionStorage.removeItem(TEST_STARTED_KEY);
+    sessionStorage.removeItem(STUDENT_DETAILS_KEY);
 
     window.location.href = "result.html";
 
@@ -785,4 +909,12 @@ loadTest().catch((error) => {
 });
 
 setupSpeechRecognition();
-startTestTimer();
+restoreStudentDetails();
+
+if (sessionStorage.getItem(TEST_STARTED_KEY) === "true") {
+  showTestScreen();
+  startTestTimer();
+} else {
+  showStartScreen();
+  updateTestTimer();
+}
