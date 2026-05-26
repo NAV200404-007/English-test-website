@@ -275,7 +275,7 @@ const questions = {
   mcq: [
     {
       id: "mcq1",
-      level: "Basic",
+      //level: "Basic",
       question: "Choose the correct sentence.",
 
       options: [
@@ -290,7 +290,7 @@ const questions = {
 
     {
       id: "mcq2",
-      level: "Basic",
+      //level: "Basic",
       question: "Which word is a noun?",
 
       options: [
@@ -305,7 +305,7 @@ const questions = {
 
     {
       id: "mcq3",
-      level: "Basic",
+      //level: "Basic",
       question: "Fill in the blank: I ___ a football yesterday.",
       options: [
         "A) buy",
@@ -318,7 +318,7 @@ const questions = {
 
     {
       id: "mcq4",
-      level: "Basic",
+      //level: "Basic",
       question: "Choose the correct spelling.",
       options: [
         "A) Frend",
@@ -331,7 +331,7 @@ const questions = {
 
     {
       id: "mcq5",
-      level: "Basic",
+      //level: "Basic",
       question: "What is the opposite of \"hot\"?",
       options: [
         "A) Warm",
@@ -344,7 +344,7 @@ const questions = {
 
     {
       id: "mcq6",
-      level: "Intermediate",
+      //level: "Intermediate",
       question: "Which sentence is correct?",
       options: [
         "A) Neither of the boys were late.",
@@ -357,7 +357,7 @@ const questions = {
 
     {
       id: "mcq7",
-      level: "Intermediate",
+      //level: "Intermediate",
       question:
         "Fill in the blank: If I ___ more time, I would learn Spanish.",
       options: [
@@ -371,7 +371,7 @@ const questions = {
 
     {
       id: "mcq8",
-      level: "Intermediate",
+      //level: "Intermediate",
       question:
         "Identify the adjective in the sentence: \"The tall building overlooks the city.\"",
       options: [
@@ -385,7 +385,7 @@ const questions = {
 
     {
       id: "mcq9",
-      level: "Intermediate",
+      //level: "Intermediate",
       question:
         "Choose the sentence with correct punctuation.",
       options: [
@@ -399,7 +399,7 @@ const questions = {
 
     {
       id: "mcq10",
-      level: "Intermediate",
+      //level: "Intermediate",
       question:
         "What does the idiom \"break the ice\" mean?",
       options: [
@@ -413,7 +413,7 @@ const questions = {
 
     {
       id: "mcq11",
-      level: "Hard",
+      //level: "Hard",
       question:
         "Choose the grammatically correct sentence.",
       options: [
@@ -427,7 +427,7 @@ const questions = {
 
     {
       id: "mcq12",
-      level: "Hard",
+      //level: "Hard",
       question:
         "Which sentence uses the passive voice?",
       options: [
@@ -441,7 +441,7 @@ const questions = {
 
     {
       id: "mcq13",
-      level: "Hard",
+      //level: "Hard",
       question:
         "Fill in the blank with the correct word: The manager insisted ___ reviewing the report again.",
       options: [
@@ -455,7 +455,7 @@ const questions = {
 
     {
       id: "mcq14",
-      level: "Hard",
+      //level: "Hard",
       question:
         "What is the meaning of the word \"meticulous\"?",
       options: [
@@ -469,7 +469,7 @@ const questions = {
 
     {
       id: "mcq15",
-      level: "Hard",
+      //level: "Hard",
       question:
         "Identify the sentence with correct subject-verb agreement.",
       options: [
