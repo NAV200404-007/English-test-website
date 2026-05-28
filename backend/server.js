@@ -558,9 +558,10 @@ function scoreWriting(text) {
   else if (words >= 140) score += 2.5;
   else if (words >= 110) score += 2;
   else if (words >= 80) score += 1;
+  else if (words >= 50) score += 0.5;
   else {
     feedback.push(
-      "Write more detail. Aim for at least 110 words, with stronger answers around 140 to 180 words."
+      "Write more detail. Section B requires at least 50 words, with stronger answers around 110 to 180 words."
     );
   }
 

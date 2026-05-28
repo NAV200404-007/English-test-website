@@ -845,6 +845,14 @@ async function submitTest(fromTimer = false) {
     return;
   }
 
+  if (wordsIn(writingAnswer.value) < 50) {
+    alert("Please complete Section B with at least 50 words.");
+
+    isSubmitting = false;
+
+    return;
+  }
+
   submitButton.disabled = true;
 
   submitButton.textContent =
