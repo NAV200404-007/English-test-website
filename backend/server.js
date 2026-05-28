@@ -485,7 +485,7 @@ const questions = {
 
   speaking: {
     passage:
-      "Martin Luther King Jr. was one of the most important leaders in American history. He believed that all people should be treated equally, regardless of their race or background. Through peaceful protests and powerful speeches, he inspired millions of people to fight for justice and freedom.\n\nOne of his most famous speeches, 'I Have a Dream,' encouraged people to imagine a world where everyone could live together peacefully. His leadership and courage helped bring major changes to civil rights laws in the United States. Even today, Martin Luther King Jr. continues to inspire people around the world to stand up for equality, kindness, and peace.",
+      "I HAVE A DREAM THAT ONE DAY THIS NATION WILL RISE UP  AND LIVE OUT THE TRUE MEANING OF IT'S CREED - WE HOLD THESE TRUTHS TO BE SELF-EVIDENT: THAT ALL MEN ARE CREATED EQUAL.",
 
     instruction:
       "Press record and read the paragraph aloud as clearly as you can."
@@ -493,7 +493,7 @@ const questions = {
 
   writing: {
     prompt:
-      "How can effective public speaking skills help a person become a better leader? Use real-life examples to support your answer."
+      "How can effective public speaking skills help a person become a better leader? Use real-life examples to support your answer. (MINIMUM 50 WORDS)"
   }
 };
 
