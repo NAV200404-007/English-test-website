@@ -526,7 +526,11 @@ function uniqueKeywordHits(
 }
 
 function normalizeWords(text) {
-  return String(text || "")
+  const value = Array.isArray(text)
+    ? text.join(" ")
+    : String(text || "");
+
+  return value
     .toLowerCase()
     .replace(/[^a-z\s]/g, " ")
     .split(/\s+/)

@@ -103,17 +103,17 @@
         <section class="panel">
           <div class="section-heading">
             <span>Section C</span>
-            <h2>Speaking: Read Aloud</h2>
+            <h2>Reading Aloud</h2>
           </div>
           <p id="speakingInstruction" class="prompt"></p>
           <article id="speakingPassage" class="passage"></article>
           <div class="recorder">
-            <button type="button" id="recordButton">Record Voice</button>
+            <button type="button" id="recordButton">Start Recording</button>
             <button type="button" id="stopButton" class="secondary" disabled>Stop</button>
             <span id="recordingStatus">Not recorded yet</span>
           </div>
-          <label for="speakingTranscript" class="reading-question">Recognized speech</label>
-          <textarea id="speakingTranscript" rows="5" placeholder="Your speech transcript will appear here after recording..." readonly required></textarea>
+          <label for="speakingTranscript" class="reading-question">Speech detected by browser</label>
+          <textarea id="speakingTranscript" rows="5" placeholder="Your detected speech will appear here after recording..." readonly required></textarea>
           <div class="helper-row">
             <span id="speakingTimer">0 seconds</span>
             <span>30 marks</span>

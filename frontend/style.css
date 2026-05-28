@@ -345,6 +345,27 @@ textarea:focus {
   padding: 16px 18px;
 }
 
+.passage h3 {
+  margin: 0 0 14px;
+  color: var(--navy);
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.passage p {
+  margin: 0 0 10px;
+  color: #17253d;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.passage p:last-child {
+  margin-bottom: 0;
+}
+
 .reading-question {
   display: block;
   margin: 18px 0 10px;

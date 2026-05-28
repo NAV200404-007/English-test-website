@@ -109,6 +109,30 @@ function renderMcq(questions) {
     .join("");
 }
 
+function renderSpeakingPassage(passage) {
+  const lines = Array.isArray(passage)
+    ? passage
+    : String(passage || "").split(/\n+/);
+
+  speakingPassage.innerHTML = lines
+    .filter((line) => line.trim())
+    .map((line, index) => {
+      const tag = index === 0 ? "h3" : "p";
+
+      return `<${tag}>${escapeHtml(line.trim())}</${tag}>`;
+    })
+    .join("");
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function collectMcqAnswers() {
   return testData.mcq.reduce((answers, question) => {
     const selected = form.querySelector(
@@ -142,8 +166,7 @@ async function loadTest() {
   speakingInstruction.textContent =
     testData.speaking.instruction;
 
-  speakingPassage.textContent =
-    testData.speaking.passage;
+  renderSpeakingPassage(testData.speaking.passage);
 }
 
 function updateTestTimer() {
