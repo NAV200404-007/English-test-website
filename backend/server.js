@@ -33,6 +33,7 @@ let databaseReady = false;
 let mongoUnavailable = false;
 const UPLOAD_DIR =
   process.env.UPLOAD_DIR ||
+  (process.env.VERCEL ? "/tmp/uploads" : null) ||
   path.join(__dirname, "uploads");
 const upload = multer({
   storage: multer.diskStorage({
@@ -1293,8 +1294,12 @@ app.post(
   }
 );
 
-app.listen(PORT, () => {
-  console.log(
-    `English AI Test running at http://localhost:${PORT}`
-  );
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(
+      `English AI Test running at http://localhost:${PORT}`
+    );
+  });
+}
+
+module.exports = app;
