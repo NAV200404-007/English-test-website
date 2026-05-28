@@ -835,6 +835,16 @@ async function submitTest(fromTimer = false) {
     return;
   }
 
+  if (!speakingTranscript.value.trim()) {
+    alert(
+      "Please complete Section C. Press Start Recording, read the passage aloud, and make sure speech is detected before submitting."
+    );
+
+    isSubmitting = false;
+
+    return;
+  }
+
   submitButton.disabled = true;
 
   submitButton.textContent =
