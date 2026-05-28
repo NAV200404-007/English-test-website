@@ -484,12 +484,22 @@ const questions = {
   ],
 
   speaking: {
-    passage:
-      "I HAVE A DREAM THAT ONE DAY THIS NATION WILL RISE UP  AND LIVE OUT THE TRUE MEANING OF IT'S CREED - WE HOLD THESE TRUTHS TO BE SELF-EVIDENT: THAT ALL MEN ARE CREATED EQUAL.",
+  passage: [
+    "I HAVE A DREAM,",
+    "THAT ONE DAY THIS NATION WILL RISE UP,",
+    "AND LIVE OUT THE TRUE MEANING OF ITS CREED,",
+    "WE HOLD THESE TRUTHS TO BE SELF-EVIDENT,",
+    "THAT ALL MEN ARE CREATED EQUAL.",
+    "I HAVE A DREAM TODAY.",
+    "A DREAM OF FREEDOM, JUSTICE, AND UNITY,",
+    "WHERE PEOPLE WILL NOT BE JUDGED BY THEIR DIFFERENCES,",
+    "BUT BY THEIR CHARACTER AND HUMANITY.",
+    "~ MARTIN LUTHER KING JR."
+  ],
 
-    instruction:
-      "Press record and read the paragraph aloud as clearly as you can."
-  },
+  instruction:
+    "Press record and read the passage aloud as clearly and confidently as you can."
+},
 
   writing: {
     prompt:
