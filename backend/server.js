@@ -132,6 +132,14 @@ async function getSubmissionsCollection() {
         "result.level": 1
       });
 
+      await collection.createIndex(
+        { attemptKey: 1 },
+        {
+          unique: true,
+          sparse: true
+        }
+      );
+
       await collection.updateMany(
         { student: { $exists: false } },
         [
@@ -225,6 +233,20 @@ async function saveSubmission(submission) {
 
   const submissions =
     await readLocalSubmissions();
+
+  if (
+    submission.attemptKey &&
+    submissions.some(
+      (item) =>
+        item.attemptKey === submission.attemptKey
+    )
+  ) {
+    const error = new Error(
+      "This student has already completed the assessment."
+    );
+    error.code = "DUPLICATE_ATTEMPT";
+    throw error;
+  }
 
   const localRecord = {
     ...record,
@@ -1039,6 +1061,7 @@ function cleanStudentProfile({
   studentName = "",
   studentAge = "",
   studentEmail = "",
+  passportLast4 = "",
   gender = ""
 }) {
   const age = Number(studentAge);
@@ -1049,6 +1072,10 @@ function cleanStudentProfile({
     String(studentEmail || "")
       .trim()
       .toLowerCase();
+  const cleanPassportLast4 =
+    String(passportLast4 || "")
+      .replace(/\D/g, "")
+      .slice(0, 4);
 
   return {
     name:
@@ -1056,6 +1083,8 @@ function cleanStudentProfile({
         .trim() || "Student",
 
     email,
+
+    passportLast4: cleanPassportLast4,
 
     age:
       Number.isInteger(age) &&
@@ -1070,6 +1099,20 @@ function cleanStudentProfile({
       ? normalizedGender
       : ""
   };
+}
+
+function createAttemptKey(student) {
+  const normalizedName =
+    student.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+
+  return crypto
+    .createHash("sha256")
+    .update(
+      `${normalizedName}:${student.passportLast4}`
+    )
+    .digest("hex");
 }
 
 app.get("/api/test", (req, res) => {
@@ -1133,6 +1176,7 @@ app.post(
       studentName = "",
       studentAge = "",
       studentEmail = "",
+      passportLast4 = "",
       gender = ""
     } = req.body;
 
@@ -1141,8 +1185,19 @@ app.post(
         studentName,
         studentAge,
         studentEmail,
+        passportLast4,
         gender
       });
+
+    if (!/^\d{4}$/.test(student.passportLast4)) {
+      return res.status(400).json({
+        error:
+          "Please enter the last 4 digits of your passport number."
+      });
+    }
+
+    const attemptKey =
+      createAttemptKey(student);
 
     let mcqScore = 0;
 
@@ -1253,6 +1308,7 @@ app.post(
           schemaVersion: 2,
 
           student,
+          attemptKey,
 
           studentName:
             response.studentName,
@@ -1299,6 +1355,16 @@ app.post(
 
     } catch (error) {
       console.error(error);
+
+      if (
+        error.code === 11000 ||
+        error.code === "DUPLICATE_ATTEMPT"
+      ) {
+        return res.status(409).json({
+          error:
+            "You have already completed this assessment. Only one attempt is allowed."
+        });
+      }
 
       res.status(500).json({
         error:

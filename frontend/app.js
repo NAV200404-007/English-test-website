@@ -19,6 +19,7 @@ const recordingStatus = document.querySelector("#recordingStatus");
 const speakingTimer = document.querySelector("#speakingTimer");
 
 const studentName = document.querySelector("#studentName");
+const passportLast4 = document.querySelector("#passportLast4");
 const studentAge = document.querySelector("#studentAge");
 
 const genderInput = document.querySelector("#genderInput");
@@ -327,6 +328,7 @@ function cleanAgeInput() {
 function getStudentDetails() {
   return {
     studentName: studentName.value.trim(),
+    passportLast4: passportLast4.value.trim(),
     studentAge: studentAge.value.trim(),
     gender: genderInput.value
   };
@@ -348,6 +350,7 @@ function restoreStudentDetails() {
     const details = JSON.parse(saved);
 
     studentName.value = details.studentName || "";
+    passportLast4.value = details.passportLast4 || "";
     studentAge.value = details.studentAge || "";
     genderInput.value = details.gender || "";
 
@@ -369,6 +372,12 @@ function validateStudentDetails() {
   if (!studentName.value.trim()) {
     alert("Please enter your full name as in passport.");
     studentName.focus();
+    return false;
+  }
+
+  if (!/^\d{4}$/.test(passportLast4.value)) {
+    alert("Please enter the last 4 digits of your passport number.");
+    passportLast4.focus();
     return false;
   }
 
@@ -710,6 +719,12 @@ studentAge.addEventListener("keydown", (event) => {
 
 studentAge.addEventListener("input", cleanAgeInput);
 
+passportLast4.addEventListener("input", () => {
+  passportLast4.value = passportLast4.value
+    .replace(/\D/g, "")
+    .slice(0, 4);
+});
+
 detailsForm.addEventListener("submit", (event) => {
   event.preventDefault();
   beginTest();
@@ -866,6 +881,7 @@ async function submitTest(fromTimer = false) {
 
         body: JSON.stringify({
           studentName: studentName.value,
+          passportLast4: passportLast4.value,
           studentAge: studentAge.value,
           gender: genderInput.value,
 
@@ -888,13 +904,13 @@ async function submitTest(fromTimer = false) {
       }
     );
 
+    const result = await response.json();
+
     if (!response.ok) {
       throw new Error(
-        "Could not submit test."
+        result.error || "Could not submit test."
       );
     }
-
-    const result = await response.json();
 
     sessionStorage.setItem(
       "englishTestResult",

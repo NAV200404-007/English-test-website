@@ -31,6 +31,20 @@
           <label for="studentName">Full name (as in passport)</label>
           <input id="studentName" name="studentName" type="text" placeholder="Enter full name as in passport" required />
 
+          <label for="passportLast4">Last 4 digits of passport number</label>
+          <input
+            id="passportLast4"
+            name="passportLast4"
+            type="password"
+            inputmode="numeric"
+            minlength="4"
+            maxlength="4"
+            pattern="[0-9]{4}"
+            autocomplete="off"
+            placeholder="Enter 4 digits"
+            required
+          />
+
           <label for="studentAge">Student age</label>
           <input
             id="studentAge"
