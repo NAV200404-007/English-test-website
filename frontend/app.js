@@ -19,7 +19,6 @@ const recordingStatus = document.querySelector("#recordingStatus");
 const speakingTimer = document.querySelector("#speakingTimer");
 
 const studentName = document.querySelector("#studentName");
-const studentEmail = document.querySelector("#studentEmail");
 const studentAge = document.querySelector("#studentAge");
 
 const genderInput = document.querySelector("#genderInput");
@@ -328,7 +327,6 @@ function cleanAgeInput() {
 function getStudentDetails() {
   return {
     studentName: studentName.value.trim(),
-    studentEmail: studentEmail.value.trim(),
     studentAge: studentAge.value.trim(),
     gender: genderInput.value
   };
@@ -350,7 +348,6 @@ function restoreStudentDetails() {
     const details = JSON.parse(saved);
 
     studentName.value = details.studentName || "";
-    studentEmail.value = details.studentEmail || "";
     studentAge.value = details.studentAge || "";
     genderInput.value = details.gender || "";
 
@@ -372,12 +369,6 @@ function validateStudentDetails() {
   if (!studentName.value.trim()) {
     alert("Please enter your full name as in passport.");
     studentName.focus();
-    return false;
-  }
-
-  if (!studentEmail.validity.valid) {
-    alert("Please enter a valid email address.");
-    studentEmail.focus();
     return false;
   }
 
@@ -875,7 +866,6 @@ async function submitTest(fromTimer = false) {
 
         body: JSON.stringify({
           studentName: studentName.value,
-          studentEmail: studentEmail.value,
           studentAge: studentAge.value,
           gender: genderInput.value,
 
